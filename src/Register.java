@@ -18,5 +18,12 @@ public class Register {
 		
 	}
 	
-	public void addMoney
+	public double getBalance() {
+		return balance;
+	}
+
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+	
 }

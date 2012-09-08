@@ -6,7 +6,7 @@ public class ProductBatch {
 	private Date expiry;
 	private double price;
 	private int amount;
-	
+		
 	public ProductBatch(ProductType type, Date expiry, double price, int amount) {
 		this.type = type;
 		this.expiry = expiry;
