@@ -67,10 +67,5 @@ public class Storage {
 		return underThreshold;
 	}
 	
-	
-	
-	
-	
-	
-	
+	//TODO: Write Function to get difference between currentProductCount and maxProductcount
 }
