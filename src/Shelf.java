@@ -26,7 +26,7 @@ public class Shelf {
 	}
 	
 	public int getNumProductsOfType(ProductType type) {
-		int amount;
+		int amount = 0;
 		
 		for (ProductBatch batch: batches){
 			if (batch.getType().equals(type)) {
