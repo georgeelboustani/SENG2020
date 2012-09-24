@@ -2,9 +2,7 @@ package model;
 
 public enum EmployeeType {
 	
-	FLOORSTAFF,
+	STAFF,
 	MANAGER,
 	ADMIN;
-	
-	
 }

@@ -13,19 +13,39 @@ public class Storage {
 	private List<Shelf> shelves;
 	private Map<ProductType, Integer> maxProducts;
 	private Map<ProductType, Integer> thresholds;
+	private int id;
 	
-	public Storage() {
+	public Storage(int id) {
 		shelves = new ArrayList<Shelf>();
 		maxProducts = new HashMap<ProductType, Integer>();
 		thresholds = new HashMap<ProductType, Integer>();
+		this.id = id;
 	}
 	
+	public int getId(){
+		return id;
+	}
+	
+	public void setId(int id){
+		this.id = id;
+	}
+	
+	//TODO: CHANGE! violates OO
 	public List<Shelf> getShelves() {
 		return shelves;
 	}
 	
 	public void addShelf(ProductCategory cat, int capacity) {
-		shelves.add(new Shelf(shelves.size(), cat, capacity));
+		Shelf newShelf = new Shelf(shelves.size(), capacity);
+		shelves.add(newShelf);
+		newShelf.assignCategory(cat);
+	}
+	
+	public void addShelf(int capacity,int numShelves) {
+		for (int i = 0; i < numShelves; i++) {
+			Shelf newShelf = new Shelf(shelves.size(), capacity);
+			shelves.add(newShelf);
+		}
 	}
 	
 	public int getRemainingSpace() {

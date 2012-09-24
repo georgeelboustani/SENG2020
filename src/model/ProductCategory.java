@@ -1,5 +1,8 @@
 package model;
 
-public enum ProductCategory {
 
+//TODO store in database
+public enum ProductCategory {
+	DAIRY,
+	FRESHFOOD,
 }

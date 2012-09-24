@@ -8,7 +8,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	testAssertion.class,
 	testEmployee.class,
-	testStorage.class
+	testStorage.class,
+	testShelf.class
 })
 
 public class _TestSuite {

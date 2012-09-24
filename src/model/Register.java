@@ -24,7 +24,7 @@ public class Register {
 	}
 	
 	public void balanceTill() {
-		
+		//TODO balance til
 	}
 	
 	public double getBalance() {
@@ -35,4 +35,11 @@ public class Register {
 		this.balance = balance;
 	}
 	
+	public int getId(){
+		return registerId;
+	}
+	
+	public void setId(int id){
+       registerId = id;
+	}
 }

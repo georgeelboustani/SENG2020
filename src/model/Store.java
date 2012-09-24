@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Store {
 	
@@ -20,42 +21,69 @@ public class Store {
 		registers = new ArrayList<Register>();
 		sales = new ArrayList<Sale>();
 		
-		floorspace = new Storage();
-		backroom = new Storage();
+		floorspace = new Storage(0);
+		backroom = new Storage(0);
 		warehouses = new ArrayList<Storage>();
 	}
 	
-	// TODO - fix up the dodgy id creation
+
 	
-	void addEmployee(EmployeeType type, String firstName, String lastName) {
+	public void addEmployee(EmployeeType type, String firstName, String lastName) {
 		employees.add(EmployeeFactory.createEmployee(employees.size(), type, firstName, lastName));
 	}
 	
-	//the only thing is that im getting the user to pass in a number
-	//cause strings are dodgy
-	//and i put a constructor in the enum
-	
-	void addRegister() {
+	public void addRegister() {
 		registers.add(new Register(registers.size()));
 	}
 	
-	void addWarehouse() {
-		warehouses.add(new Storage());
+	//TODO: add method add shelves, and not replace obj
+	
+	public void addWarehouseSpace(int warehouseId, int shelves, int shelfCapacity) {
+		for (int i = 0; i < warehouses.size(); i++) {
+			Storage w = warehouses.get(i);
+			if (w.getId() == warehouseId) {
+				w.addShelf(shelfCapacity,shelves);
+			}
+		}
 	}
 	
-	void removeEmployee() {
-		
+	// TODO - fix up the dodgy id creation !! IMPORTANT !!
+	public void addWarehouse() {
+		warehouses.add(new Storage(warehouses.size()));
 	}
 	
-	void removeRegister() {
-		
+	public void addFloorSpace(int shelves, int shelfCapacity) {
+		floorspace.addShelf(shelfCapacity,shelves);
 	}
 	
-	void removeStorage() {
-		
+	public void removeWarehouse(int id) {
+		for( Storage s: warehouses){
+			if(s.getId() == id){
+				warehouses.remove(s);
+			}
+		}
 	}
+	
+	public void removeEmployee(int id) {
+		for( Employee e: employees){
+			if(e.getEmployeeId()==id){
+				employees.remove(e);
+			}
+		}
+	}
+	
+	public void removeRegister(int id) {
+		for( Register r: registers){
+			if(r.getId()==id){
+				registers.remove(r);
+			}
+		}
+	}
+	
 	
 	public int getNextEmployeeId() {
 		return employees.size();
 	}
+
+	
 }
