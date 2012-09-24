@@ -23,6 +23,6 @@ public class TextOutputter implements Outputter {
 	}
 	
 	public void showCustomerOptions() {
-		DONT FORGET TO PUSH!!! - chris
+		
 	}
 }
