@@ -1,23 +1,23 @@
 package model;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
 public class Shelf {
+	
 	ProductCategory type;
 	private int id;
-	private List<ProductBatch>  batches;
+	private List<ProductBatch> batches;
 	private int maxProducts;
 	private int currentAmount;
 	
-	public Shelf(ProductCategory type, int id, List<ProductBatch> batches,
-			int maxProducts, int currentAmount) {
+	public Shelf(int id, ProductCategory type, int maxProducts) {
 		super();
 		this.type = type;
 		this.id = id;
-		this.batches = batches;
+		this.batches = new ArrayList<ProductBatch>();
 		this.maxProducts = maxProducts;
-		this.currentAmount = currentAmount;
+		this.currentAmount = 0;
 	}
 
 	public int getId() {
@@ -40,7 +40,7 @@ public class Shelf {
 		int amount = 0;
 		
 		for (ProductBatch batch: batches){
-			if (batch.getType().equals(type)) {
+			if (batch.getProductType().equals(type)) {
 				amount += batch.getAmount();
 			}
 		}

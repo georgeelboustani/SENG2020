@@ -1,11 +1,19 @@
 package model;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Register {
+	
+	private int registerId;
 	private double balance;
-	private Collection<LogEntry> logEntries;
+	private List<LogEntry> logEntries;
 	private Employee currentEmployee; //not currently in class diagram
+	
+	public Register(int id) {
+		this.registerId = id;
+		logEntries = new ArrayList<LogEntry>();
+	}
 	
 	public Employee activeEmployee() {
 		return currentEmployee;

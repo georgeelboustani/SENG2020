@@ -15,7 +15,7 @@ public class ProductBatch {
 		this.amount = amount;
 	}
 
-	public ProductType getType() {
+	public ProductType getProductType() {
 		return type;
 	}
 
@@ -41,5 +41,14 @@ public class ProductBatch {
 
 	public void setAmount(int amount) {
 		this.amount = amount;
+	}
+
+	public boolean removeProducts(int amount) {
+		if (amount <= this.amount) {
+			this.amount -= amount;
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

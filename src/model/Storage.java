@@ -1,10 +1,12 @@
 package model;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 
 public class Storage {
 	
@@ -13,7 +15,17 @@ public class Storage {
 	private Map<ProductType, Integer> thresholds;
 	
 	public Storage() {
-		//Empty constructor
+		shelves = new ArrayList<Shelf>();
+		maxProducts = new HashMap<ProductType, Integer>();
+		thresholds = new HashMap<ProductType, Integer>();
+	}
+	
+	public List<Shelf> getShelves() {
+		return shelves;
+	}
+	
+	public void addShelf(ProductCategory cat, int capacity) {
+		shelves.add(new Shelf(shelves.size(), cat, capacity));
 	}
 	
 	public int getRemainingSpace() {
@@ -55,6 +67,12 @@ public class Storage {
 				currentShelf.addProductBatch(product);
 			}
 		}
+		
+	}
+	
+	public void addItem(int shelfId, ProductBatch product, int threshold) {
+		thresholds.put(product.getProductType(), threshold);
+		addItem(shelfId,product);
 	}
 	
 	//CTL
