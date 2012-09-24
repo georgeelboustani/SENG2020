@@ -1,3 +1,4 @@
+package model;
 import play.api.*;
 
 public class Customer {

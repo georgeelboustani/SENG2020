@@ -1,3 +1,4 @@
+package model;
 import java.util.Collection;
 import java.util.List;
 
@@ -9,6 +10,16 @@ public class Shelf {
 	private int maxProducts;
 	private int currentAmount;
 	
+	public Shelf(ProductCategory type, int id, List<ProductBatch> batches,
+			int maxProducts, int currentAmount) {
+		super();
+		this.type = type;
+		this.id = id;
+		this.batches = batches;
+		this.maxProducts = maxProducts;
+		this.currentAmount = currentAmount;
+	}
+
 	public int getId() {
 		return id;
 	}
