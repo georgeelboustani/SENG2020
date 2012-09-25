@@ -6,7 +6,7 @@ public class Sale {
 	
 	private int saleId;
 	private Date date;
-	private ProductBasket products;
+	private Trolley products;
 	
 	/**
 	 * A sale is a past transaction
@@ -15,7 +15,7 @@ public class Sale {
 	 * @param date
 	 * @param products - make sure this is a copy
 	 */
-	public Sale(int id, Date date, ProductBasket products) {
+	public Sale(int id, Date date, Trolley products) {
 		this.saleId = id;
 		this.date = date;
 		this.products = products;
@@ -29,7 +29,7 @@ public class Sale {
 		return date;
 	}
 
-	public ProductBasket getProducts() {
+	public Trolley getProducts() {
 		return products;
 	}	
 }
