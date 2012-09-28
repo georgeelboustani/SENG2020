@@ -43,7 +43,6 @@ public class Main {
 		 *                  - change classes of users
 		 *                  - 
 		 */
-		 
 	}
 	public static void initialize() {
 		Store store = new Store(1);
