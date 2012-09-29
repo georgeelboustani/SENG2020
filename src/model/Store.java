@@ -29,7 +29,8 @@ public class Store {
 
 	
 	public void addEmployee(EmployeeType type, String firstName, String lastName) {
-		employees.add(EmployeeFactory.createEmployee(employees.size(), type, firstName, lastName));
+		employees.add(new Employee(employees.size(),firstName,lastName,type));
+		// TODO - need to save in the database
 	}
 	
 	public void addRegister() {

@@ -20,7 +20,7 @@ public class DatabaseTest {
 		Database db = new Database("user","pass");
 		QueryBuilder qb = new QueryBuilder(db);
 		
-		db.executeQuery(qb.newInsertTestQuery("cheese"));
+		db.executeQuery(qb.newInsertTestQuery("milk"));
 		db.executeSelect(qb.newSelectTestQuery());
 	}
 

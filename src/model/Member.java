@@ -2,17 +2,20 @@ package model;
 import java.util.Date;
 
 
-public class Member extends Customer {
+public class Member {
 	
+	private int memberId;
 	private Date signUp;
 	private String firstName;
 	private String lastName;
 	private int loyaltyPoints;
 	
 	public Member(int id, Date signUp, String firstName, String lastName) {
-		super(id);
+		this.memberId = id;
+		this.signUp = signUp;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.loyaltyPoints = 0;
 	}
 	
 	public void addLoyaltyPoints(int points) {

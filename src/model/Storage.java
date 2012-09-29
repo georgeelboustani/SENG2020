@@ -30,7 +30,6 @@ public class Storage {
 		this.id = id;
 	}
 	
-	//TODO: CHANGE! violates OO
 	public List<Shelf> getShelves() {
 		return shelves;
 	}

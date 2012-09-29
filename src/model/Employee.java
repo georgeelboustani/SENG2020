@@ -1,12 +1,13 @@
 package model;
 
-public abstract class Employee {
+public class Employee {
 
 	private int employeeId;
 	private String firstName;
 	private String lastName;
+	private EmployeeType type;
 	
-	public Employee(int id, String firstName, String lastName) {
+	public Employee(int id, String firstName, String lastName, EmployeeType type) {
 		this.employeeId = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -36,5 +37,7 @@ public abstract class Employee {
 		this.lastName = lastName;
 	}
 	
-	
+	public EmployeeType getEmployeeType() {
+		return this.type;	
+	}
 }

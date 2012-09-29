@@ -1,67 +1,102 @@
 package controller;
 
-import java.util.Scanner;
-
-import view.Outputter;
-import view.TextOutputter;
 import view.EmployeeReader;
 import model.Employee;
-import model.EmployeeFactory;
 import model.EmployeeType;
-import model.Store;
+import model.Member;
 
 public class Main {
-	private static EmployeeReader reader;
+	
+	private static Employee currentEmployee = null;
+	private static Member currentMember = null;
+	private static boolean activeUser = false;
 	
 	public static void main(String[] args) {
-		initialize();
-		Outputter outputter = new TextOutputter();
-		outputter.printMainMenu();
-		/*
-		 * while (the system is running) {
-		 *     user can login
-		 *     
-		 *     if customer:
-		 *         - can buy products
-		 *         - query products
-		 *         - can become a member
-		 *         
-		 *     ---> if member:
-		 *             - can check their loyalty points
-		 *             - can gain and use loyalty points during transactions
-		 *     
-		 *     if staff:
-		 *         - add products to shelf 
-		 *         - Move products between storage locations
-		 *         
-		 *     ---> if manager:
-		 *              - change price of batches on the spot
-		 *              - order products
-		 *         
-		 *     -------> if admin:
-		 *                  - can add users
-		 *                  - change classes of users
-		 *                  - 
+		
+		// TODO - change true to something more functional maybe while (systemRunning)
+		while (true) {
+			if (currentEmployee == null && currentMember == null) {
+				activeUser = requestLogin();
+			}
+			
+			if (activeUser) {
+				if (currentMember != null) {
+					performNormalUserOptions();
+					performMemberOptions();					          				
+				} else {
+					 /* Admins will first be given admin options, and then manager options 
+					 * and then staff options. They need to skip through all of them. */
+					switch (currentEmployee.getEmployeeType()) {
+			            case ADMIN:  performAdminOptions();
+			            case MANAGER:  performManagerOptions();
+			            case STAFF:  performStaffOptions();
+			            	break;
+					}
+				}
+								
+				requestLogout();
+			}
+			
+			performNormalUserOptions();    
+		}
+	}
+	
+	private static void requestLogout() {
+		// Ask user if they would like to logout.
+		// If so: currentEmployee = null currentEmployee = null activeUser = false
+	}
+	
+	private static void performStaffOptions() {
+		/*   TODO - finish this off
+		 *   - add products to shelf 
+		 *   - Move products between storage locations
+		 *   - can sell and return products
 		 */
 	}
-	public static void initialize() {
-		Store store = new Store(1);
-		
-		reader = new EmployeeReader();
-
-		reader.fetchEmployeeInformation();
-		createEmployee(store, reader.getFirstName(), reader.getLastName(), reader.getEmployeeType());
+	
+	private static void performManagerOptions() {
+		/*   TODO - finish this off
+		 *   - change price of batches on the spot
+		 *   - order products
+		 */
 	}
 	
-	public static Employee createEmployee(Store store, String fName, String lName, EmployeeType type) {
-		
-		int id = store.getNextEmployeeId();
-		
-		Employee newEmployee = EmployeeFactory.createEmployee(id, type, fName, lName);
-
-		return newEmployee;
-		
-		
+	private static void performAdminOptions() {
+		/*	 TODO - finish this off
+		 *   - can add users
+		 *   - change classes of users
+		 */
+	}	
+	private static void performNormalUserOptions() {
+		/*   TODO - finish this off
+		 *   - can buy products
+		 *   - query products
+		 *   - can become a member
+		 */
+	}
+	private static void performMemberOptions() {
+		/*   TODO - finish this off
+		 *   - can check their loyalty points
+		 *   - can gain and use loyalty points during transactions
+		 */    
 	}
 	
+	/**
+	 * Requests a user to login. If logged in, the user will be stored
+	 * in currentEmployee or currentMember
+	 * 
+	 * @return true if a member or admin logs in
+	 */
+	private static boolean requestLogin() {
+		// TODO - finish this
+		
+		// Request login
+		// See if someone wants to log in as a member or employee
+		// currentMember or currentEmployee = new Whatever();
+		// if (someone logged in) {
+		// 	   activeUser = true;
+		// }
+		
+		return false;
+	}	
 }

@@ -7,7 +7,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	testAssertion.class,
-	testEmployee.class,
 	testStorage.class,
 	testShelf.class
 })

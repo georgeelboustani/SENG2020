@@ -10,12 +10,20 @@ import com.mysql.jdbc.Connection;
 
 public class Database {
 	
-	private static String server = "jdbc:mysql://localhost:3306/";
-	private static String db = "seng2020";
+	private static String localServer = "jdbc:mysql://localhost:3306/";
+	private static String localDB = "seng2020";
 	
+	private String server;
+	private String db;
 	private Properties connectionProps;
 	
 	public Database(String user, String pass) {
+		this(localServer, localDB, user, pass);
+	}
+	
+	public Database(String host, String db, String user, String pass) {
+		this.server = host;
+		this.db = db;
 		connectionProps = new Properties();
 		connectionProps.put("user", "user");
 		connectionProps.put("password", "pass");
