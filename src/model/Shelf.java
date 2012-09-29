@@ -1,11 +1,9 @@
 package model;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class Shelf {
 
-	ProductCategory type;
 	private int id;
 	private List<ProductBatch> batches;
 	private int maxProducts;
@@ -32,15 +30,6 @@ public class Shelf {
 	public void removeCategory(ProductCategory category) {
 		categories.remove(category);
 	}
-
-	public ProductCategory getCategory(){
-		return type;
-	}
-	
-	public void setCategory(ProductCategory type){
-		this.type = type;
-	}
-	
 	
 	public List getProducts(){
 		return batches;

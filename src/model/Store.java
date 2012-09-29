@@ -26,10 +26,9 @@ public class Store {
 		warehouses = new ArrayList<Storage>();
 	}
 	
-
-	
-	public void addEmployee(EmployeeType type, String firstName, String lastName) {
-		employees.add(new Employee(employees.size(),firstName,lastName,type));
+	public void addEmployee(String firstName, String lastName, EmployeeType type,  String password) {
+		// TODO - fix up shitty id creation
+		employees.add(new Employee(employees.size(),firstName,lastName,type,password));
 		// TODO - need to save in the database
 	}
 	

@@ -7,25 +7,25 @@ import java.util.ArrayList;
 
 public class CommandLine {
 	
-	public static int getUserOption(ArrayList<String> questions) {
+	public static int getUserOption(ArrayList<String> options) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		
-		printOptions(questions);
+		printOptions(options);
 		System.out.print("Please choose an option: ");
 		String selection = null;
 		int option = 0;
 		
 		try {
 			selection = in.readLine();
-			while(!validateInt(selection,1,questions.size())) {
-				System.out.println("Option must be an integer between " + 1 + " and " + questions.size());
+			while(!validateInt(selection,1,options.size())) {
+				System.out.print("Option must be an integer between " + 1 + " and " + options.size() + ": ");
 				selection = in.readLine();
 			}
 			
 			option = Integer.parseInt(selection);
 		} catch (IOException e) {
 			System.out.println("Error while choosing an option, please try again");
-			option = getUserOption(questions);
+			option = getUserOption(options);
 		}
 		
 		return option;
@@ -38,44 +38,61 @@ public class CommandLine {
 	}
 	
 	/**
-	 * @return true is yes, false if no.
+	 * @return true if yes, false if no.
 	 */
-	public static boolean getYesOrNo() {
+	public static boolean getYesOrNo(String question) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		
 		boolean answer;
 		String input;
 		
+		System.out.print(question + " ");
+		
 		try {
-			while () {
-				
+			input = in.readLine();
+			while (!validateYesOrNo(input)) {
+				System.out.print("Please answer yes or no: ");
+				input = in.readLine();
 			}
 			
-			if ("y".equals(input)) {
+			if ("y".equalsIgnoreCase(String.valueOf(input.charAt(0)))) {
 				answer = true;
 			} else {
 				answer = false;
 			}
 		} catch (IOException e) {
 			System.out.println("Error while asking yes or no, try again");
-			answer = getYesOrNo();
+			answer = getYesOrNo(question);
 		}
 		
 		return answer;
 	}
 	
-	private static boolean validateInt(String input, int min, int max) {
-		boolean isValid = true;
-		
-		for (int i = 0; i < input.length() && isValid; i++) {
-			if (!Character.isDigit(input.charAt(i))) {
-				isValid = false;
+	public static boolean validateYesOrNo(String string) {
+		if (string != null && string.length() > 0) {
+			if ("y".equalsIgnoreCase(string) || "n".equalsIgnoreCase(string)) {
+				return true;
+			}
+			
+			if ("yes".equalsIgnoreCase(string) || "no".equalsIgnoreCase(string)) {
+				return true;
 			}
 		}
 		
+		return false;		
+	}
+	
+	private static boolean validateInt(String input, int min, int max) {
+		boolean isValid = true;
+		
+		try {
+			Integer.parseInt(input);
+		} catch (NumberFormatException e) {	
+			isValid = false;
+		}
+
 		if (isValid) {
 			int selection = Integer.parseInt(input);
-			if (selection >= min && selection <= max) {
+			if (selection < min || selection > max) {
 				isValid = false;
 			}
 		}

@@ -43,4 +43,8 @@ public class ProductType {
 	public String getDescription() {
 		return productDescriptions.get(typeId);
 	}	
+	
+	public int getTypeId() {
+		return this.typeId;
+	}
 }
