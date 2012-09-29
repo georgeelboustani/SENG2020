@@ -1,8 +1,9 @@
 package controller;
 
-import view.EmployeeReader;
+import java.util.ArrayList;
+
+import view.CommandLine;
 import model.Employee;
-import model.EmployeeType;
 import model.Member;
 
 public class Main {
@@ -13,9 +14,9 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		// TODO - change true to something more functional maybe while (systemRunning)
+		// TODO - change true to something more functional maybe while(systemRunning)
 		while (true) {
-			if (currentEmployee == null && currentMember == null) {
+			if (!activeUser) {
 				activeUser = requestLogin();
 			}
 			
@@ -35,9 +36,9 @@ public class Main {
 				}
 								
 				requestLogout();
+			} else {
+				performNormalUserOptions();
 			}
-			
-			performNormalUserOptions();    
 		}
 	}
 	
@@ -50,7 +51,8 @@ public class Main {
 		/*   TODO - finish this off
 		 *   - add products to shelf 
 		 *   - Move products between storage locations
-		 *   - can sell and return products
+		 *   - can sell and return products for customer
+		 *   ----> if customer is member, can gain and use loyalty points during transactions
 		 */
 	}
 	
@@ -77,8 +79,13 @@ public class Main {
 	private static void performMemberOptions() {
 		/*   TODO - finish this off
 		 *   - can check their loyalty points
-		 *   - can gain and use loyalty points during transactions
-		 */    
+		 *   - 
+		 */
+		ArrayList<String> questions = new ArrayList<String>();
+		questions.add("Check loyalty points balance");
+		int option = CommandLine.getUserOption(questions);
+		
+		
 	}
 	
 	/**
