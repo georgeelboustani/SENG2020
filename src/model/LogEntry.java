@@ -39,8 +39,9 @@ public class LogEntry {
 		stmt.setInt(3, this.currentEmployeeId);
 		stmt.setString(4, this.logDescription);
 		stmt.setInt(5, this.registerId);
+		
 		db.executeQuery(stmt);
-
+		con.close();
 	}
 	
 }

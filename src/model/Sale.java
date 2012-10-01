@@ -1,6 +1,13 @@
 package model;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+
+import com.mysql.jdbc.Connection;
+
+import database.Database;
 
 public class Sale {
 	
@@ -19,6 +26,41 @@ public class Sale {
 		this.saleId = id;
 		this.date = date;
 		this.products = products;
+	}
+	
+	public void persist(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		
+		String query = "INSERT into " + db.getDatabase() + ".sale (`saleId`,`date`) " +
+				"VALUES (?,?)";
+    	
+    	stmt = con.prepareStatement(query);
+		stmt.setInt(1, this.saleId);
+		stmt.setDate(2, db.convertDate(this.date));
+		
+		db.executeQuery(stmt);
+		con.close();
+		
+		persistProductMapping(db);
+	}
+	
+	public void persistProductMapping(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		String query = "INSERT into " + db.getDatabase() + ".salebatches (`saleId`,`batchId`) " +
+				"VALUES (?,?)";
+    	stmt = con.prepareStatement(query);
+    	stmt.setInt(1, this.saleId);
+    	
+		Iterator<ProductBatch> itr = products.getProductsIterator();
+		while (itr.hasNext()) {
+			stmt.setInt(2, itr.next().getBatchId());
+			db.executeQuery(stmt);
+		}
+		
+		stmt.close();
+		con.close();
 	}
 
 	public int getSaleId() {

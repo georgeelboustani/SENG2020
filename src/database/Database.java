@@ -35,7 +35,7 @@ public class Database {
 	}
 	
 
-	//TODO: Fix clear data
+	//TODO: Fix clear data properly. and disable foreign keys then enable
 	public void clearData() {
 		
 		try {

@@ -1,5 +1,7 @@
 package model;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,18 +10,59 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.mysql.jdbc.Connection;
+
+import database.Database;
+
 public class Storage {
 	
+	private int id;
 	private List<Shelf> shelves;
+	private StorageType type;
 	private Map<ProductType, Integer> maxProducts;
 	private Map<ProductType, Integer> thresholds;
-	private int id;
 	
-	public Storage(int id) {
+	public Storage(int id, StorageType type) {
+		this.id = id;
+		this.type = type;
 		shelves = new ArrayList<Shelf>();
 		maxProducts = new HashMap<ProductType, Integer>();
 		thresholds = new HashMap<ProductType, Integer>();
-		this.id = id;
+	}
+	
+	public void persist(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		
+		String query = "INSERT into " + db.getDatabase() + ".storage (`id`,`type`) " +
+				"VALUES (?,?)";
+    	
+    	stmt = con.prepareStatement(query);
+		stmt.setInt(1, this.id);
+		stmt.setString(2, this.type.toString());
+		
+		db.executeQuery(stmt);
+		con.close();
+		
+		persistShelfMapping(db);
+	}
+	
+	private void persistShelfMapping(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		String query = "INSERT into " + db.getDatabase() + ".storageshelf (`storageId`,`shelfId`) " +
+				"VALUES (?,?)";
+    	stmt = con.prepareStatement(query);
+		stmt.setInt(1, this.id);
+		
+		Iterator<Shelf> itr = shelves.iterator();
+		while (itr.hasNext()) {
+			stmt.setInt(2, itr.next().getShelfId());
+			db.executeQuery(stmt);
+		}
+		
+		stmt.close();
+		con.close();
 	}
 	
 	public int getId(){
@@ -82,7 +125,7 @@ public class Storage {
 	public void addItem(int shelfId, ProductBatch product) {
 		
 		for (Shelf currentShelf: shelves){
-			if (currentShelf.getId() == shelfId) {
+			if (currentShelf.getShelfId() == shelfId) {
 				currentShelf.addProductBatch(product);
 			}
 		}

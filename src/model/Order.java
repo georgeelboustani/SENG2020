@@ -35,6 +35,26 @@ public class Order {
 		this.quantity = quantity;
 		this.supplierId = supplierId;
 	}
+	
+	public void persist(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		
+		String query = "INSERT into " + db.getDatabase() + ".order (`id`,`dateOrdered`,`orderArrival`,`receivedDate`,`productTypeId`,`quantity`,`supplierId`) " +
+				"VALUES (?,?,?,?,?,?,?)";
+    	
+    	stmt = con.prepareStatement(query);
+		stmt.setInt(1, this.orderId);
+		stmt.setDate(2, db.convertDate(this.orderDate));
+		stmt.setDate(3, db.convertDate(this.orderArrival));
+		stmt.setDate(4, db.convertDate(this.receivedDate));
+		stmt.setInt(5, this.productTypeId);
+		stmt.setInt(6, this.quantity);
+		stmt.setInt(7, this.supplierId);
+		
+		db.executeQuery(stmt);
+		con.close();
+	}
 
 	public int getOrderId() {
 		return orderId;
@@ -86,24 +106,5 @@ public class Order {
 	
 	public int getSupplierId() {
 		return supplierId;
-	}
-	
-	public void persist(Database db) throws SQLException {
-		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
-		
-		String query = "INSERT into " + db.getDatabase() + ".member (`id`,`dateOrdered`,`orderArrival`,`receivedDate`,`productTypeId`,`quantity`,`supplierId`) " +
-				"VALUES (?,?,?,?,?)";
-    	
-    	stmt = con.prepareStatement(query);
-		stmt.setInt(1, this.orderId);
-		stmt.setDate(2, db.convertDate(this.orderDate));
-		stmt.setDate(3, db.convertDate(this.orderArrival));
-		stmt.setDate(4, db.convertDate(this.receivedDate));
-		stmt.setInt(5, this.productTypeId);
-		stmt.setInt(6, this.quantity);
-		stmt.setInt(7, this.supplierId);
-		
-		db.executeQuery(stmt);
 	}
 }

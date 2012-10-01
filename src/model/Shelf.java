@@ -1,6 +1,12 @@
 package model;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.mysql.jdbc.Connection;
+
+import database.Database;
 
 public class Shelf {
 
@@ -19,6 +25,22 @@ public class Shelf {
 		this.currentAmount = 0;
 	}
 	
+	public void persist(Database db) throws SQLException {
+		PreparedStatement stmt = null;
+		Connection con = db.getConnection();
+		
+		String query = "INSERT into " + db.getDatabase() + ".shelf (`shelfId`,`maxProducts`,`currentAmount`) " +
+				"VALUES (?,?,?)";
+    	
+    	stmt = con.prepareStatement(query);
+		stmt.setInt(1, this.id);
+		stmt.setInt(2, this.maxProducts);
+		stmt.setInt(3, this.currentAmount);
+		
+		db.executeQuery(stmt);
+		con.close();
+	}
+	
 	// TODO - make sure the equals still works even when saved and laoded
 	//        from database
 	public void assignCategory(ProductCategory category) {
@@ -35,11 +57,12 @@ public class Shelf {
 		return batches;
 	}
 	
-	public int getId() {
+	public int getShelfId() {
 		return id;
 	}
 	
 	public void addProductBatch(ProductBatch batch) {
+		// TODO - Update shelfbatch table
 		batches.add(batch);
 	}
 	

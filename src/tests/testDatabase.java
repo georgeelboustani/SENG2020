@@ -30,23 +30,23 @@ public class testDatabase {
 	@Test
 	public void insertLogEntry() throws SQLException {
 		
-		Database db = new Database("user","pass");
-		db.clearData();
-		
-		Employee testEmp = new Employee(5,"George","B",EmployeeType.STAFF,"pass");
-		testEmp.persist(db);
-
-		db.executeQuery( db.getConnection().prepareStatement("INSERT INTO seng2020.register (`registerId`, `balance`, `currentEmployee`)VALUES(2, 5, 5)"));
-		
-		LogEntry testLog = new LogEntry(0, Calendar.getInstance().getTime(),5,"Test Description", 2);
-		
-		
-		try {
-			testLog.persist(db);
-			//TODO: Persist test doesn't actually throw - fix test
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+//		Database db = new Database("user","pass");
+//		db.clearData();
+//		
+//		Employee testEmp = new Employee(5,"George","B",EmployeeType.STAFF,"pass");
+//		testEmp.persist(db);
+//
+//		db.executeQuery( db.getConnection().prepareStatement("INSERT INTO seng2020.register (`registerId`, `balance`, `currentEmployee`)VALUES(2, 5, 5)"));
+//		
+//		LogEntry testLog = new LogEntry(0, Calendar.getInstance().getTime(),5,"Test Description", 2);
+//		
+//		
+//		try {
+//			testLog.persist(db);
+//			//TODO: Persist test doesn't actually throw - fix test
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 
 	}
 	

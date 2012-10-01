@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 public class Trolley {
 	
@@ -9,6 +10,10 @@ public class Trolley {
 	
 	public Trolley(ArrayList<ProductBatch> products) {
 		this.products = products;
+	}
+	
+	public Iterator<ProductBatch> getProductsIterator() {
+		return products.iterator();
 	}
 	
 	/**

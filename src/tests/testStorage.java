@@ -7,7 +7,7 @@ public class testStorage {
 
 	@Test
 	public void constructor() {
-		Storage testStorageObj = new Storage(0);
+		Storage testStorageObj = new Storage(0,StorageType.FLOOR);
 		
 		assert(testStorageObj.getId()==0);
 		assert(testStorageObj.getNumProducts()==0);

@@ -38,6 +38,7 @@ public class Employee {
 		stmt.setString(5, this.password);
 		
 		db.executeQuery(stmt);
+		con.close();
 	}
 
 	public int getEmployeeId() {

@@ -11,7 +11,7 @@ public class testShelf {
 		
 		assert(testShelfObj.getCurrentAmount()==0);
 		assert(testShelfObj.getMaxProducts()==50);
-		assert(testShelfObj.getId()==0);
+		assert(testShelfObj.getShelfId()==0);
 	}
 	
 	@Test
