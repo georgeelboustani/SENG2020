@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 public class CommandLine {
 	
+	public static void printMessage(String message) {
+		System.out.println(message);
+	}
+	
 	public static int getUserOption(ArrayList<String> options) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		

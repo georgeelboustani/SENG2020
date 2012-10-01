@@ -22,85 +22,14 @@ public class Main {
 			
 			if (activeUser) {
 				if (currentMember != null) {
-					performCustomerOptions(true);					          				
+					CustomerOptions.performCustomerOptions(true);					          				
 				} else {
-					 /* Admins will first be given admin options, and then manager options 
-					 * and then staff options. They need to skip through all of them. */
-					performEmployeeOptions(currentEmployee.getEmployeeType());
+					EmployeeOptions.performEmployeeOptions(currentEmployee.getEmployeeType());
 				}
-								
-				requestLogout();
 			} else {
-				performCustomerOptions(false);
+				CustomerOptions.performCustomerOptions(false);
 			}
 		}
-	}
-	
-	private static void performEmployeeOptions(EmployeeType type) {
-		/*   TODO - finish this off for staff
-		 *   - add products to shelf 
-		 *   - Move products between storage locations
-		 *   - can sell and return products for customer
-		 *   ----> if customer is member, can gain and use loyalty points during transactions
-		 */
-		/*   TODO - finish this off for manager
-		 *   - change price of batches on the spot
-		 *   - order products
-		 */
-		/*	 TODO - finish this off for admin
-		 *   - can add users
-		 *   - change classes of users
-		 */
-		ArrayList<String> questions = new ArrayList<String>();
-		
-		switch(type){
-			case ADMIN:
-				/*
-				questions.add("Add user");
-				questions.add("Remove user");
-				questions.add("Promote employee");
-				questions.add("Demote employee");
-				*/
-				questions.add("Manage users");
-				questions.add("Manage products");
-			case MANAGER:
-				/*
-				questions.add("Change product price");
-				questions.add("Order products");
-				questions.add("Add product to system");
-				*/
-				questions.add("Manage products");
-			case STAFF:
-		}
-		/*
-		questions.add("Sell product(Cash)");
-		questions.add("Sell product(Card)");
-		*/
-		questions.add("Sell product");
-		questions.add("Return product");
-		questions.add("Change details");
-		questions.add("Log out");
-		
-		int option = CommandLine.getUserOption(questions);
-		
-	}
-	
-	private static void performCustomerOptions(boolean isMember) {	
-		ArrayList<String> questions = new ArrayList<String>();
-		
-		if( isMember ){
-			questions.add("Check loyalty points balance");
-			questions.add("Change details");
-			questions.add("Close membership");
-		} else {
-			questions.add("Become a member");
-		}
-	
-		questions.add("Check product catalogue");
-		questions.add("Log out");
-		
-		int option = CommandLine.getUserOption(questions);
-		
 	}
 	
 	/**
@@ -109,7 +38,7 @@ public class Main {
 	 * 
 	 * @return true if a member or admin logs in
 	 */
-	private static boolean requestLogin() {
+	public static boolean requestLogin() {
 		boolean logIn = CommandLine.getYesOrNo("Would you like to log into the system?");
 		boolean logInSuccessful = false;
 		
@@ -136,9 +65,9 @@ public class Main {
 		return logInSuccessful;
 	}	
 
-	private static void requestLogout() {
+	public static void requestLogout() {
 		// Ask user if they would like to logout.
-		boolean logOut = CommandLine.getYesOrNo("Would you like to log out of the system?");
+		boolean logOut = CommandLine.getYesOrNo("Are you sure you would like to log out of the system?");
 		if (logOut) {
 			currentEmployee = null;
 			currentMember = null;

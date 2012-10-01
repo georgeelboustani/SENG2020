@@ -60,8 +60,6 @@ public class Storage {
 			stmt.setInt(2, itr.next().getShelfId());
 			db.executeQuery(stmt);
 		}
-		
-		stmt.close();
 		con.close();
 	}
 	
