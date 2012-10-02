@@ -32,7 +32,7 @@ public class PosSystem {
 	
 	public static int addStore() throws SQLException {
 		Store newStore = new Store(PosSystem.generateNextId(TableName.STORE));
-		newStore.persist(db);
+		newStore.persist();
 		return newStore.getStoreId();
 	}
 	
@@ -49,17 +49,15 @@ public class PosSystem {
 	}
 	
 	public static int generateNextId(TableName table) throws SQLException {
-		ResultSet tables = db.getConnection().prepareStatement("SELECT * FROM " + table.toString()).executeQuery();
-		
-		ResultSet idSet = tables.getArray(1).getResultSet();
+		ResultSet rows = db.getConnection().prepareStatement("SELECT * FROM " + db.getDbName() + "." + table.toString()).executeQuery();
 		
 		int maxId = 0;
-		while (idSet.next()) {
-			if (idSet.getInt(1) > maxId) {
-				maxId = idSet.getInt(1);
+		while (rows.next()) {
+			if (rows.getInt(1) > maxId) {
+				maxId = rows.getInt(1);
 			}
 		}
 		
-		return maxId++;
+		return ++maxId;
 	}
 }

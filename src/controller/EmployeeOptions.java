@@ -1,12 +1,18 @@
 package controller;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import database.Database;
 
 import exception.CancelException;
 import exception.LogoutException;
 
+import model.Employee;
 import model.EmployeeType;
 import model.PosSystem;
+import model.Store;
+import model.TableName;
 import view.CommandLine;
 
 public class EmployeeOptions {
@@ -47,8 +53,12 @@ public class EmployeeOptions {
 		
 		switch (question) {
 			case "Manage users":
-				newQuestions.add("Add user");
-				newQuestions.add("Remove user");
+				newQuestions.add("Add employee");
+				newQuestions.add("Disable employee");
+				newQuestions.add("Enable employee");
+				newQuestions.add("Add member");
+				newQuestions.add("Disable member");
+				newQuestions.add("Enable member");
 				newQuestions.add("Promote employee");
 				newQuestions.add("Demote employee");
 				break;
@@ -86,51 +96,79 @@ public class EmployeeOptions {
 	private static void employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) throws CancelException {
 		String question = questions.get(option - 1);
 		
+		Store s = Store.getStoreById(PosSystem.getStoreId());
+		
 		switch (question) {
-			case "Add user":
-				int id = PosSystem.getStoreId();
+			case "Add employee":
 				String fname = CommandLine.getAnswerAsString("First Name:");
 				String lname = CommandLine.getAnswerAsString("Last Name:");
-				EmployeeType type = EmployeeType.valueOf(CommandLine.getAnswerAsString("Employee Type:", EmployeeType.valuesToString()));
+				EmployeeType type = EmployeeType.valueOf(CommandLine.getAnswerAsString("Choose an employee type:", EmployeeType.valuesToString()));
 				String password = CommandLine.getAnswerAsString("Password:");
 				
+				try {
+					s.addEmployee(fname, lname, type, password);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					employeeQuestionHandlerLevelTwo(questions,option);
+				}
 				
 				break;
-			case "Remove user":
+			case "Disable employee":
+				System.err.println("Unimplemented function");
+				break;
+			case "Enable employee":
+				System.err.println("Unimplemented function");
+				break;
+			case "Add member":
+				String memfname = CommandLine.getAnswerAsString("First Name:");
+				String memlname = CommandLine.getAnswerAsString("Last Name:");
+				String mempassword = CommandLine.getAnswerAsString("Password:");
 				
+				try {
+					s.addMember(memfname, memlname, mempassword, Database.getCurrentDate());
+				} catch (SQLException e) {
+					e.printStackTrace();
+					employeeQuestionHandlerLevelTwo(questions,option);
+				}
+				break;
+			case "Disable member":
+				System.err.println("Unimplemented function");
+				break;
+			case "Enable member":
+				System.err.println("Unimplemented function");
 				break;
 			case "Promote employee":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Demote employee":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Change product price":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Order products":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Add product to system":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Sell product(Cash)":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Sell product(Card)":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Return product":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Change First Name":
-				
+				System.err.println("Unimplemented function");
 				break;	
 			case "Change Last Name":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Change Password":
-				
+				System.err.println("Unimplemented function");
 				break;
 			case "Cancel":
 				throw new CancelException();

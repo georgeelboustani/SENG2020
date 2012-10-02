@@ -41,15 +41,9 @@ public class CommandLine {
 	
 	public static String getAnswerAsString(String question, ArrayList<String> types) throws CancelException {
 		// TODO - print off the types for the user to choose from
-		String selection = getAnswerAsString(question);
-		
-		for (String type: types) {
-			if (type.equalsIgnoreCase(selection)) {
-				return selection;
-			}
-		}
-		
-		return getAnswerAsString(question,types);
+		System.out.println(question);
+		int selection = getUserOption(types);
+		return types.get(selection - 1);
 	}
 	
 	public static String getAnswerAsString(String question) throws CancelException {

@@ -1,7 +1,7 @@
 package model;
 
 public enum TableName {
-	CUSTOMER,
+	MEMBER,
 	EMPLOYEE,
 	LOG,
 	ORDER,

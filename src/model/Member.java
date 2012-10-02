@@ -27,11 +27,11 @@ public class Member {
 		this.password = password;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Connection con = PosSystem.getDatabase().getConnection();
 		
-		String query = "INSERT into " + db.getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`) " +
 				"VALUES (?,?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
@@ -42,7 +42,7 @@ public class Member {
 		stmt.setInt(5, this.loyaltyPoints);
 		stmt.setDate(6, this.signUp);
 		
-		db.executeQuery(stmt);
+		PosSystem.getDatabase().executeQuery(stmt);
 		con.close();
 	}
 	

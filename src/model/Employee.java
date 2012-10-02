@@ -24,11 +24,11 @@ public class Employee {
 		this.password = password;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Connection con = PosSystem.getDatabase().getConnection();
 		
-		String query = "INSERT into " + db.getDbName() + ".employee (`id`,`fname`,`lname`,`employeeType`,`password`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".employee (`id`,`fname`,`lname`,`employeeType`,`password`) " +
 				"VALUES (?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
@@ -38,7 +38,7 @@ public class Employee {
 		stmt.setString(4, this.type.toString());
 		stmt.setString(5, this.password);
 		
-		db.executeQuery(stmt);
+		PosSystem.getDatabase().executeQuery(stmt);
 		con.close();
 	}
 

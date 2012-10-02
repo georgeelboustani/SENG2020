@@ -38,17 +38,17 @@ public class Store {
 		warehouse = new Storage(2,StorageType.WAREHOUSE);
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Connection con = PosSystem.getDatabase().getConnection();
 		
-		String query = "INSERT into " + db.getDbName() + ".store (`id`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".store (`id`) " +
 				"VALUES (?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.storeId);
 		
-		db.executeQuery(stmt);
+		PosSystem.getDatabase().executeQuery(stmt);
 		con.close();
 		
 		persistStorageMapping(floorspace);
@@ -58,10 +58,13 @@ public class Store {
 	
 	public void addEmployee(String firstName, String lastName, EmployeeType type,  String password) throws SQLException {
 		Employee emp = new Employee(PosSystem.generateNextId(TableName.EMPLOYEE),firstName,lastName,type,password);
-		emp.persist(PosSystem.getDatabase());
-		employees.add(emp);
-		
-		persistEmployeeMapping(PosSystem.getDatabase(),emp);
+		emp.persist();		
+		persistEmployeeMapping(emp);
+	}
+	
+	public void addMember(String firstName, String lastName, String password, Date signup) throws SQLException {
+		Member mem = new Member(PosSystem.generateNextId(TableName.MEMBER), signup,firstName,lastName,password);
+		mem.persist();		
 	}
 	
 	public void addRegister() throws SQLException {
@@ -69,7 +72,7 @@ public class Store {
 		registers.add(reg);
 		reg.persist(PosSystem.getDatabase());
 		
-		persistRegisterMapping(PosSystem.getDatabase(),reg);
+		persistRegisterMapping(reg);
 	}
 	
 	public void addSale(Date date, Trolley products) throws SQLException {
@@ -113,30 +116,30 @@ public class Store {
 		con.close();
 	}
 	
-	private void persistRegisterMapping(Database db, Register reg) throws SQLException {
+	private void persistRegisterMapping(Register reg) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
-		String query = "REPLACE into " + db.getDbName() + ".storeregister (`storeId`,`registerId`) " +
+		Connection con = PosSystem.getDatabase().getConnection();
+		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeregister (`storeId`,`registerId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.storeId);
 		stmt.setInt(2, reg.getId());
 		
-		db.executeQuery(stmt);
+		PosSystem.getDatabase().executeQuery(stmt);
 		stmt.close();
 		con.close();
 	}
 	
-	private void persistEmployeeMapping(Database db, Employee emp) throws SQLException {
+	private void persistEmployeeMapping(Employee emp) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
-		String query = "REPLACE into " + db.getDbName() + ".storeemployee (`storeId`,`employeeId`) " +
+		Connection con = PosSystem.getDatabase().getConnection();
+		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeemployee (`storeId`,`employeeId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.storeId);
 		stmt.setInt(2, emp.getEmployeeId());
 		
-		db.executeQuery(stmt);
+		PosSystem.getDatabase().executeQuery(stmt);
 		stmt.close();
 		con.close();
 	}
