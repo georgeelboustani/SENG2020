@@ -5,12 +5,60 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import controller.DataValidator;
+
 public class CommandLine {
-	
-	public static void printMessage(String message) {
-		System.out.println(message);
+
+	public static int getAnswerAsInt(String question) {
+		int answer  = 0;
+		System.out.print(question + " ");
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		String selection = null;
+		
+		try {
+			selection = in.readLine();
+			while(!DataValidator.validateInt(selection)) {
+				System.out.print("Answer must be an integer: ");
+				selection = in.readLine();
+			}
+			
+			answer = Integer.parseInt(selection);
+		} catch (IOException e) {
+			System.out.println("Error while submitting an answer, please try again");
+			answer = getAnswerAsInt(question);
+		}
+		
+		return answer;
 	}
 	
+	public static String getAnswerAsString(String question) {
+		System.out.print(question + " ");
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		String selection = null;
+		
+		try {
+			selection = in.readLine();
+			while(!validateString(selection)) {
+				System.out.print("Answer must be a valid string: ");
+				selection = in.readLine();
+			}
+		} catch (IOException e) {
+			System.out.println("Error while submitting an answer, please try again");
+			selection = getAnswerAsString(question);
+		}
+		
+		return selection;
+	}
+	
+	private static boolean validateString(String selection) {
+		boolean isValid = true;
+		
+		
+		return isValid;
+	}
+
 	public static int getUserOption(ArrayList<String> options) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		
@@ -21,7 +69,7 @@ public class CommandLine {
 		
 		try {
 			selection = in.readLine();
-			while(!validateInt(selection,1,options.size())) {
+			while(!DataValidator.validateInt(selection,1,options.size())) {
 				System.out.print("Option must be an integer between " + 1 + " and " + options.size() + ": ");
 				selection = in.readLine();
 			}
@@ -53,7 +101,7 @@ public class CommandLine {
 		
 		try {
 			input = in.readLine();
-			while (!validateYesOrNo(input)) {
+			while (!DataValidator.validateYesOrNo(input)) {
 				System.out.print("Please answer yes or no: ");
 				input = in.readLine();
 			}
@@ -69,38 +117,5 @@ public class CommandLine {
 		}
 		
 		return answer;
-	}
-	
-	public static boolean validateYesOrNo(String string) {
-		if (string != null && string.length() > 0) {
-			if ("y".equalsIgnoreCase(string) || "n".equalsIgnoreCase(string)) {
-				return true;
-			}
-			
-			if ("yes".equalsIgnoreCase(string) || "no".equalsIgnoreCase(string)) {
-				return true;
-			}
-		}
-		
-		return false;		
-	}
-	
-	private static boolean validateInt(String input, int min, int max) {
-		boolean isValid = true;
-		
-		try {
-			Integer.parseInt(input);
-		} catch (NumberFormatException e) {	
-			isValid = false;
-		}
-
-		if (isValid) {
-			int selection = Integer.parseInt(input);
-			if (selection < min || selection > max) {
-				isValid = false;
-			}
-		}
-		
-		return isValid;
 	}
 }
