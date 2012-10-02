@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mysql.jdbc.Connection;
@@ -27,7 +28,7 @@ public class Employee {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".employee (`id`,`fname`,`lname`,`employeeType`,`password`) " +
+		String query = "INSERT into " + db.getDbName() + ".employee (`id`,`fname`,`lname`,`employeeType`,`password`) " +
 				"VALUES (?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
@@ -83,5 +84,19 @@ public class Employee {
 	
 	public EmployeeType getEmployeeType() {
 		return this.type;	
+	}
+
+	public static Employee getEmployeeById(int id) {
+		Employee emp = null;
+		
+		try {
+			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.employee WHERE id = " + id).executeQuery();
+			tables.next();
+			emp = new Employee(tables.getInt("id"),tables.getString("fname"),tables.getString("lname"),EmployeeType.valueOf(tables.getString("employeeType")),tables.getString("password"));
+		} catch (SQLException e) {
+			return null;
+		}
+		
+		return emp;
 	}
 }

@@ -1,7 +1,7 @@
 package model;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
 
 import com.mysql.jdbc.Connection;
 
@@ -27,13 +27,13 @@ public class ProductBatch {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".productbatch (`batchId`,`productType`,`expiry`,`price`,`amount`) " +
+		String query = "INSERT into " + db.getDbName() + ".productbatch (`batchId`,`productType`,`expiry`,`price`,`amount`) " +
 				"VALUES (?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.batchId);
 		stmt.setObject(2, this.type);
-		stmt.setDate(3, db.convertDate(this.expiry));
+		stmt.setDate(3, this.expiry);
 		stmt.setDouble(4, this.price);
 		stmt.setInt(5, this.amount);
 		

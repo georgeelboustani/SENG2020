@@ -26,7 +26,7 @@ public class Register {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".register (`registerId`,`balance`,`currentEmployee`) " +
+		String query = "INSERT into " + db.getDbName() + ".register (`registerId`,`balance`,`currentEmployee`) " +
 				"VALUES (?,?,?)";
     	
     	stmt = con.prepareStatement(query);

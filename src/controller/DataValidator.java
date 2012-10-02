@@ -1,5 +1,7 @@
 package controller;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class DataValidator {
 	public static boolean validateYesOrNo(String string) {
 		if (string != null && string.length() > 0) {
@@ -15,26 +17,12 @@ public class DataValidator {
 		return false;		
 	}
 	
-	public static boolean validateInt(String input) {
-		boolean isValid = true;
-		
-		try {
-			Integer.parseInt(input);
-		} catch (NumberFormatException e) {	
-			isValid = false;
-		}
-		
-		return isValid;
+	public static boolean validateInt(String string) {
+		return StringUtils.isNumeric(string);
 	}
 	
 	public static boolean validateInt(String input, int min, int max) {
-		boolean isValid = true;
-		
-		try {
-			Integer.parseInt(input);
-		} catch (NumberFormatException e) {	
-			isValid = false;
-		}
+		boolean isValid = validateInt(input);
 
 		if (isValid) {
 			int selection = Integer.parseInt(input);
@@ -44,5 +32,9 @@ public class DataValidator {
 		}
 		
 		return isValid;
+	}
+	
+	public static boolean valdiateString(String string) {
+		return StringUtils.isAlphanumeric(string) && StringUtils.isNotBlank(string);
 	}
 }

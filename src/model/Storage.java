@@ -34,7 +34,7 @@ public class Storage {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".storage (`id`,`type`) " +
+		String query = "INSERT into " + db.getDbName() + ".storage (`id`,`type`) " +
 				"VALUES (?,?)";
     	
     	stmt = con.prepareStatement(query);
@@ -50,7 +50,7 @@ public class Storage {
 	private void persistShelfMapping(Database db) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
-		String query = "INSERT into " + db.getDatabase() + ".storageshelf (`storageId`,`shelfId`) " +
+		String query = "INSERT into " + db.getDbName() + ".storageshelf (`storageId`,`shelfId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.id);

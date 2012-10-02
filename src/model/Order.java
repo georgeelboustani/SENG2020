@@ -1,10 +1,10 @@
 package model;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import com.mysql.jdbc.Connection;
 
@@ -28,7 +28,7 @@ public class Order {
 			     int supplierId) {
 		
 		this.orderId = orderId;
-		this.orderDate = Calendar.getInstance().getTime();
+		this.orderDate = Database.getCurrentDate();
 		this.orderArrival = orderArrival;
 		this.receivedDate = receivedDate;
 		this.productTypeId = productTypeId;
@@ -40,14 +40,14 @@ public class Order {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".order (`id`,`dateOrdered`,`orderArrival`,`receivedDate`,`productTypeId`,`quantity`,`supplierId`) " +
+		String query = "INSERT into " + db.getDbName() + ".order (`id`,`dateOrdered`,`orderArrival`,`receivedDate`,`productTypeId`,`quantity`,`supplierId`) " +
 				"VALUES (?,?,?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.orderId);
-		stmt.setDate(2, db.convertDate(this.orderDate));
-		stmt.setDate(3, db.convertDate(this.orderArrival));
-		stmt.setDate(4, db.convertDate(this.receivedDate));
+		stmt.setDate(2, this.orderDate);
+		stmt.setDate(3, this.orderArrival);
+		stmt.setDate(4, this.receivedDate);
 		stmt.setInt(5, this.productTypeId);
 		stmt.setInt(6, this.quantity);
 		stmt.setInt(7, this.supplierId);

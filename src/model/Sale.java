@@ -1,8 +1,8 @@
 package model;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 
 import com.mysql.jdbc.Connection;
@@ -32,12 +32,12 @@ public class Sale {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".sale (`saleId`,`date`) " +
+		String query = "INSERT into " + db.getDbName() + ".sale (`saleId`,`date`) " +
 				"VALUES (?,?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.saleId);
-		stmt.setDate(2, db.convertDate(this.date));
+		stmt.setDate(2, this.date);
 		
 		db.executeQuery(stmt);
 		con.close();
@@ -48,7 +48,7 @@ public class Sale {
 	public void persistProductMapping(Database db) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
-		String query = "INSERT into " + db.getDatabase() + ".salebatches (`saleId`,`batchId`) " +
+		String query = "INSERT into " + db.getDbName() + ".salebatches (`saleId`,`batchId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.saleId);

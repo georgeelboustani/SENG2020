@@ -2,11 +2,15 @@ package controller;
 
 import java.util.ArrayList;
 
+import exception.CancelException;
+import exception.LogoutException;
+
 import model.EmployeeType;
+import model.PosSystem;
 import view.CommandLine;
 
 public class EmployeeOptions {
-	public static void performEmployeeOptions(EmployeeType type) {
+	public static void performEmployeeOptions(EmployeeType type) throws CancelException {
 		ArrayList<String> questions = new ArrayList<String>();
 		
 		switch(type){
@@ -27,13 +31,19 @@ public class EmployeeOptions {
 		questions.add("Log out");
 		
 		int option = CommandLine.getUserOption(questions);
-		employeeQuestionHandlerLevelOne(questions,option);
+		
+		try {
+			employeeQuestionHandlerLevelOne(questions,option);
+		} catch (CancelException e) {
+			
+		} catch (LogoutException e) {
+			
+		}
 	}
 
-	public static void employeeQuestionHandlerLevelOne(ArrayList<String> questions, int option) {
+	public static void employeeQuestionHandlerLevelOne(ArrayList<String> questions, int option) throws LogoutException, CancelException {
 		ArrayList<String> newQuestions = new ArrayList<String>();
 		String question = questions.get(option - 1);
-		questions.clear();
 		
 		switch (question) {
 			case "Manage users":
@@ -61,23 +71,29 @@ public class EmployeeOptions {
 				break;
 			case "Log out":
 				Main.requestLogout();
-				break;
+				throw new LogoutException();
 		}
 		
 		int newOption = CommandLine.getUserOption(newQuestions);
 		
-		boolean finished = employeeQuestionHandlerLevelTwo(newQuestions,newOption);
-		if (!finished) {
+		try {
+			employeeQuestionHandlerLevelTwo(newQuestions,newOption);
+		} catch (CancelException e){
 			employeeQuestionHandlerLevelOne(questions,option);
 		}
 	}
 
-	private static boolean employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) {
-		boolean finished = true;
+	private static void employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) throws CancelException {
 		String question = questions.get(option - 1);
 		
 		switch (question) {
 			case "Add user":
+				int id = PosSystem.getStoreId();
+				String fname = CommandLine.getAnswerAsString("First Name:");
+				String lname = CommandLine.getAnswerAsString("Last Name:");
+				EmployeeType type = EmployeeType.valueOf(CommandLine.getAnswerAsString("Employee Type:", EmployeeType.valuesToString()));
+				String password = CommandLine.getAnswerAsString("Password:");
+				
 				
 				break;
 			case "Remove user":
@@ -117,9 +133,7 @@ public class EmployeeOptions {
 				
 				break;
 			case "Cancel":
-				finished = false;
+				throw new CancelException();
 		}
-		
-		return finished;
 	}
 }

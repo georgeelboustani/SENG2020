@@ -2,6 +2,8 @@ package controller;
 
 import java.util.ArrayList;
 
+import exception.CancelException;
+
 import view.CommandLine;
 
 public class CustomerOptions {
@@ -12,15 +14,18 @@ public class CustomerOptions {
 			questions.add("Check loyalty points balance");
 			questions.add("Change details");
 			questions.add("Close membership");
-			
+			questions.add("Log out");
 		} else {
 			questions.add("Become a member");
 		}
 	
 		questions.add("Check product catalogue");
-		questions.add("Log out");
 		
-		int option = CommandLine.getUserOption(questions);
-		
+		try {
+			int option = CommandLine.getUserOption(questions);
+			
+		} catch (CancelException e) {
+			
+		}
 	}
 }

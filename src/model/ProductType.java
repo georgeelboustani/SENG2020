@@ -48,7 +48,7 @@ public class ProductType {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".producttype (`typeId`,`name`,`description`) " +
+		String query = "INSERT into " + db.getDbName() + ".producttype (`typeId`,`name`,`description`) " +
 				"VALUES (?,?,?)";
     	
 		int index = productTypes.size() - 1;

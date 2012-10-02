@@ -27,7 +27,7 @@ public class Supplier {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".supplier (`supplierId`,`name`,`address`,`phone`,`description`) " +
+		String query = "INSERT into " + db.getDbName() + ".supplier (`supplierId`,`name`,`address`,`phone`,`description`) " +
 				"VALUES (?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);

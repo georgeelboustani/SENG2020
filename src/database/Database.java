@@ -1,11 +1,13 @@
 package database;
 
 import java.sql.Array;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Properties;
 import java.sql.DriverManager;
 import java.text.DateFormat;
@@ -41,15 +43,26 @@ public class Database {
 		try {
 			ResultSet tables = getConnection().prepareStatement("SELECT TABLE_NAME FROM (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'seng2020') AS a").executeQuery();
 			
-			getConnection().prepareStatement("SET FOREIGN_KEY_CHECKS = 0;").execute();
+			ArrayList<String> tableNames = new ArrayList<String>();
 			while (tables.next()) {
-				//getConnection().prepareStatement("ALTER TABLE seng2020." + tables.getString("TABLE_NAME") + " DISABLE KEYS").execute();
-				//System.out.println("DELETE FROM seng2020." + tables.getString("TABLE_NAME"));
-				getConnection().prepareStatement("DELETE FROM seng2020." + tables.getString("TABLE_NAME")).execute();
-				//getConnection().prepareStatement("ALTER TABLE seng2020." + tables.getString("TABLE_NAME") + " ENABLE  KEYS").execute();
-
+				tableNames.add(tables.getString("TABLE_NAME"));
 			}			
-			getConnection().prepareStatement("SET FOREIGN_KEY_CHECKS = 1;").execute();
+			
+			int index = 0;
+			while (tableNames.size() > 0) {
+				try {
+					getConnection().prepareStatement("DELETE FROM seng2020." + tableNames.get(index)).execute();
+					tableNames.remove(index);
+				} catch (SQLException e) {
+					// Who cares
+				}
+				index++;
+				
+				if (index >= tableNames.size()) {
+					index = 0;
+				}
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -111,12 +124,8 @@ public class Database {
 		return connectionProps;
 	}
 	
-	public String getDatabase() {
+	public String getDbName() {
 		return db;
-	}
-	
-	public java.sql.Date convertDate(Date date) {
-		return java.sql.Date.valueOf(new SimpleDateFormat("yyyy-MM-dd").format(date));
 	}
 	
 	public Connection getConnection(){
@@ -165,6 +174,10 @@ public class Database {
 	    	return true;
 	    
 	    return false;
+	}
+
+	public static Date getCurrentDate() {
+		return java.sql.Date.valueOf(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
 	}
 
 }

@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import model.EmployeeType;
+
 import controller.DataValidator;
+import exception.CancelException;
 
 public class CommandLine {
 
-	public static int getAnswerAsInt(String question) {
+	public static int getAnswerAsInt(String question) throws CancelException {
 		int answer  = 0;
 		System.out.print(question + " ");
 		
@@ -18,21 +21,38 @@ public class CommandLine {
 		
 		try {
 			selection = in.readLine();
-			while(!DataValidator.validateInt(selection)) {
+			while(!selection.equalsIgnoreCase("cancel") && !DataValidator.validateInt(selection)) {
 				System.out.print("Answer must be an integer: ");
 				selection = in.readLine();
 			}
-			
-			answer = Integer.parseInt(selection);
 		} catch (IOException e) {
 			System.out.println("Error while submitting an answer, please try again");
 			answer = getAnswerAsInt(question);
+		}
+
+		if (selection.equalsIgnoreCase("cancel")) {
+			throw new CancelException();
+		} else {
+			answer = Integer.parseInt(selection);
 		}
 		
 		return answer;
 	}
 	
-	public static String getAnswerAsString(String question) {
+	public static String getAnswerAsString(String question, ArrayList<String> types) throws CancelException {
+		// TODO - print off the types for the user to choose from
+		String selection = getAnswerAsString(question);
+		
+		for (String type: types) {
+			if (type.equalsIgnoreCase(selection)) {
+				return selection;
+			}
+		}
+		
+		return getAnswerAsString(question,types);
+	}
+	
+	public static String getAnswerAsString(String question) throws CancelException {
 		System.out.print(question + " ");
 		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -40,13 +60,17 @@ public class CommandLine {
 		
 		try {
 			selection = in.readLine();
-			while(!validateString(selection)) {
+			while(!validateString(selection) && !selection.equalsIgnoreCase("cancel")) {
 				System.out.print("Answer must be a valid string: ");
 				selection = in.readLine();
 			}
 		} catch (IOException e) {
 			System.out.println("Error while submitting an answer, please try again");
 			selection = getAnswerAsString(question);
+		}
+		
+		if (selection.equalsIgnoreCase("cancel")) {
+			throw new CancelException();
 		}
 		
 		return selection;
@@ -59,7 +83,7 @@ public class CommandLine {
 		return isValid;
 	}
 
-	public static int getUserOption(ArrayList<String> options) {
+	public static int getUserOption(ArrayList<String> options) throws CancelException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		
 		printOptions(options);
@@ -69,15 +93,19 @@ public class CommandLine {
 		
 		try {
 			selection = in.readLine();
-			while(!DataValidator.validateInt(selection,1,options.size())) {
+			while(!selection.equalsIgnoreCase("cancel") && !DataValidator.validateInt(selection,1,options.size())) {
 				System.out.print("Option must be an integer between " + 1 + " and " + options.size() + ": ");
 				selection = in.readLine();
 			}
-			
-			option = Integer.parseInt(selection);
 		} catch (IOException e) {
 			System.out.println("Error while choosing an option, please try again");
 			option = getUserOption(options);
+		}
+		
+		if (selection.equalsIgnoreCase("cancel")) {
+			throw new CancelException();
+		} else {
+			option = Integer.parseInt(selection);
 		}
 		
 		return option;
@@ -93,6 +121,7 @@ public class CommandLine {
 	 * @return true if yes, false if no.
 	 */
 	public static boolean getYesOrNo(String question) {
+		// TODO - add cancel option
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		boolean answer;
 		String input;

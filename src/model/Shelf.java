@@ -29,7 +29,7 @@ public class Shelf {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".shelf (`shelfId`,`maxProducts`,`currentAmount`) " +
+		String query = "INSERT into " + db.getDbName() + ".shelf (`shelfId`,`maxProducts`,`currentAmount`) " +
 				"VALUES (?,?,?)";
     	
     	stmt = con.prepareStatement(query);

@@ -2,32 +2,46 @@ package controller;
 
 import java.util.ArrayList;
 
+import database.Database;
+
+import exception.CancelException;
+import exception.InvalidStoreIdException;
+
 import model.*;
 import view.*;
 
 
 public class Main {
 	
+	private static int storeId = 1;
 	private static Employee currentEmployee = null;
 	private static Member currentMember = null;
 	private static boolean activeUser = false;
 	
 	public static void main(String[] args) {
+		try {
+			PosSystem.initialise(new Database("user","pass"), storeId);
+		} catch (InvalidStoreIdException e) {
+			System.err.println("Pos system failed to run. Invalid store id configuration.");
+		}
 		
-		// TODO - change true to something more functional maybe while(systemRunning)
-		while (true) {
+		while (PosSystem.isInitialised()) {
 			if (!activeUser) {
 				activeUser = requestLogin();
 			}
 			
-			if (activeUser) {
-				if (currentMember != null) {
-					CustomerOptions.performCustomerOptions(true);					          				
+			try {
+				if (activeUser) {
+					if (currentMember != null) {
+						CustomerOptions.performCustomerOptions(true);					          				
+					} else {
+						EmployeeOptions.performEmployeeOptions(currentEmployee.getEmployeeType());
+					}
 				} else {
-					EmployeeOptions.performEmployeeOptions(currentEmployee.getEmployeeType());
+					CustomerOptions.performCustomerOptions(false);
 				}
-			} else {
-				CustomerOptions.performCustomerOptions(false);
+			} catch (CancelException e) {
+				
 			}
 		}
 	}
@@ -42,36 +56,84 @@ public class Main {
 		boolean logIn = CommandLine.getYesOrNo("Would you like to log into the system?");
 		boolean logInSuccessful = false;
 		
-		if (logIn) {
-			ArrayList<String> questions = new ArrayList<String>();
-			questions.add("Employee");
-			questions.add("Member");
-			questions.add("Cancel");
-			int option = CommandLine.getUserOption(questions);
-			
-			if (option == 1) {
-				// TODO - actually login
-				currentEmployee = null;
-				logInSuccessful = true;
-			} else if (option == 2) {
-				// TODO - actually login
-				currentMember = null;
-				logInSuccessful = true;
-			} else {
-				requestLogin();
+		try {
+			if (logIn) {
+				ArrayList<String> questions = new ArrayList<String>();
+				questions.add("Employee");
+				questions.add("Member");
+				int option = CommandLine.getUserOption(questions);
+				
+				if (option == 1) {
+					logInSuccessful = loginEmployee();
+				} else if (option == 2) {
+					logInSuccessful = loginMember();
+				}
 			}
+		} catch (CancelException e) {
+			logInSuccessful = requestLogin();
 		}
 		
 		return logInSuccessful;
+	}
+
+	private static boolean loginMember() throws CancelException {
+		boolean logInSuccessful = false;
+		int id = CommandLine.getAnswerAsInt("Please enter your member id:");
+		
+		Member mem = Member.getMemberById(PosSystem.getDatabase(), id);
+		while (mem == null) {
+			System.out.println("A member with id " + id + " does not exist, please type a valid id or cancel");
+			id = CommandLine.getAnswerAsInt("Please enter your member id:");
+			mem = Member.getMemberById(PosSystem.getDatabase(), id);
+		}
+		
+		if (mem != null) {
+			String password = CommandLine.getAnswerAsString("Please type in your password:");
+			while (!mem.getPassword().equals(password)) {
+				System.out.println("Invalid password, you need to type in a valid password or cancel");
+				password = CommandLine.getAnswerAsString("Password:");
+			}
+			currentMember = mem;
+			logInSuccessful = true;
+		}
+		return logInSuccessful;
+	}
+
+	private static boolean loginEmployee() throws CancelException {
+		boolean logInSuccessful = false;
+		
+		int id = CommandLine.getAnswerAsInt("Please enter your employee id:");
+		Employee emp = Employee.getEmployeeById(id);
+		
+		while (emp == null) {
+			System.out.println("An employee with id " + id + " does not exist, please type a valid id or cancel");
+			id = CommandLine.getAnswerAsInt("Id:");
+			emp = Employee.getEmployeeById(id);
+		}
+		
+		if (emp != null) {
+			String password = CommandLine.getAnswerAsString("Please type in your password:");
+			while (!emp.getPassword().equals(password)) {
+				System.out.println("Invalid password, you need to type in a valid password or cancel");
+				password = CommandLine.getAnswerAsString("Password:");
+			}
+			currentEmployee = emp;
+			logInSuccessful = true;
+		}
+		return logInSuccessful;
 	}	
 
-	public static void requestLogout() {
+	public static boolean requestLogout() {
 		// Ask user if they would like to logout.
 		boolean logOut = CommandLine.getYesOrNo("Are you sure you would like to log out of the system?");
 		if (logOut) {
 			currentEmployee = null;
 			currentMember = null;
 			activeUser = false;
+			
+			return true;
 		}
+		
+		return false;
 	}
 }

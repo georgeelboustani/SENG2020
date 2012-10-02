@@ -1,7 +1,8 @@
 package model;
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import com.mysql.jdbc.Connection;
 
@@ -30,7 +31,7 @@ public class Member {
 		PreparedStatement stmt = null;
 		Connection con = db.getConnection();
 		
-		String query = "INSERT into " + db.getDatabase() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`) " +
+		String query = "INSERT into " + db.getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`) " +
 				"VALUES (?,?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
@@ -39,7 +40,7 @@ public class Member {
 		stmt.setString(3, this.lastName);
 		stmt.setString(4, this.password);
 		stmt.setInt(5, this.loyaltyPoints);
-		stmt.setDate(6, db.convertDate(this.signUp));
+		stmt.setDate(6, this.signUp);
 		
 		db.executeQuery(stmt);
 		con.close();
@@ -72,4 +73,22 @@ public class Member {
 	public void setLoyaltyPoints(int loyaltyPoints) {
 		this.loyaltyPoints = loyaltyPoints;
 	}	
+	
+	public String getPassword() {
+		return this.password;
+	}
+
+	public static Member getMemberById(Database db, int id) {
+		Member mem = null;
+		
+		try {
+			ResultSet tables = db.getConnection().prepareStatement("SELECT * FROM seng2020.Member WHERE id = " + id).executeQuery();
+			mem = new Member(tables.getInt("id"),tables.getDate("signupDate"),tables.getString("fname"),tables.getString("lname"),tables.getString("password"));
+			mem.loyaltyPoints = tables.getInt("points");
+		} catch (SQLException e) {
+			return null;
+		}
+		
+		return mem;
+	}
 }
