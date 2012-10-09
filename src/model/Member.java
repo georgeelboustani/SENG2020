@@ -17,6 +17,7 @@ public class Member {
 	private String lastName;
 	private int loyaltyPoints;
 	private String password;
+	private boolean activeStatus;
 	
 	public Member(int id, Date signUp, String firstName, String lastName, String password) {
 		this.memberId = id;
@@ -25,14 +26,15 @@ public class Member {
 		this.lastName = lastName;
 		this.loyaltyPoints = 0;
 		this.password = password;
+		this.activeStatus = true;
 	}
 	
 	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getDatabase().getConnection();
 		
-		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`) " +
-				"VALUES (?,?,?,?,?,?)";
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`,`active`) " +
+				"VALUES (?,?,?,?,?,?,?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.memberId);
@@ -41,6 +43,7 @@ public class Member {
 		stmt.setString(4, this.password);
 		stmt.setInt(5, this.loyaltyPoints);
 		stmt.setDate(6, this.signUp);
+		stmt.setBoolean(7, this.activeStatus);
 		
 		PosSystem.getDatabase().executeQuery(stmt);
 		con.close();
@@ -77,12 +80,34 @@ public class Member {
 	public String getPassword() {
 		return this.password;
 	}
+	
+	public void setActiveStatus(boolean active) {	
+		try {
+			if (active != this.activeStatus) {
+				PreparedStatement stmt = null;
+				Connection con = PosSystem.getDatabase().getConnection();
+				
+				String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".member " +
+						       "SET active = ?" +
+						       "WHERE id = ?";
+				
+		    	stmt = con.prepareStatement(query);
+				stmt.setBoolean(1, active);
+				stmt.setInt(2, this.memberId);
+				
+				PosSystem.getDatabase().executeQuery(stmt);
+				con.close();
+			}
+		} catch (Exception e) {
+			System.err.println("Failed to update active status");
+		}
+	}
 
-	public static Member getMemberById(Database db, int id) {
+	public static Member getMemberById(int id) {
 		Member mem = null;
 		
 		try {
-			ResultSet tables = db.getConnection().prepareStatement("SELECT * FROM seng2020.Member WHERE id = " + id).executeQuery();
+			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.member WHERE id = " + id).executeQuery();
 			mem = new Member(tables.getInt("id"),tables.getDate("signupDate"),tables.getString("fname"),tables.getString("lname"),tables.getString("password"));
 			mem.loyaltyPoints = tables.getInt("points");
 		} catch (SQLException e) {

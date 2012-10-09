@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import database.Database;
 
 import exception.CancelException;
-import exception.InvalidStoreIdException;
+import exception.InvalidIdException;
 
 import model.*;
 import view.*;
@@ -21,7 +21,7 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			PosSystem.initialise(new Database("user","pass"), storeId);
-		} catch (InvalidStoreIdException e) {
+		} catch (InvalidIdException e) {
 			System.err.println("Pos system failed to run. Invalid store id configuration.");
 		}
 		
@@ -80,11 +80,11 @@ public class Main {
 		boolean logInSuccessful = false;
 		int id = CommandLine.getAnswerAsInt("Please enter your member id:");
 		
-		Member mem = Member.getMemberById(PosSystem.getDatabase(), id);
+		Member mem = Member.getMemberById(id);
 		while (mem == null) {
 			System.out.println("A member with id " + id + " does not exist, please type a valid id or cancel");
 			id = CommandLine.getAnswerAsInt("Please enter your member id:");
-			mem = Member.getMemberById(PosSystem.getDatabase(), id);
+			mem = Member.getMemberById(id);
 		}
 		
 		if (mem != null) {

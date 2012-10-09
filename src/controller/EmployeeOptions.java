@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import database.Database;
 
 import exception.CancelException;
+import exception.InvalidIdException;
 import exception.LogoutException;
 
 import model.Employee;
@@ -98,80 +99,87 @@ public class EmployeeOptions {
 		
 		Store s = Store.getStoreById(PosSystem.getStoreId());
 		
-		switch (question) {
-			case "Add employee":
-				String fname = CommandLine.getAnswerAsString("First Name:");
-				String lname = CommandLine.getAnswerAsString("Last Name:");
-				EmployeeType type = EmployeeType.valueOf(CommandLine.getAnswerAsString("Choose an employee type:", EmployeeType.valuesToString()));
-				String password = CommandLine.getAnswerAsString("Password:");
-				
-				try {
+		int empId, memId;
+		
+		try {
+			switch (question) {
+				case "Add employee":
+					String fname = CommandLine.getAnswerAsString("First Name:");
+					String lname = CommandLine.getAnswerAsString("Last Name:");
+					EmployeeType type = EmployeeType.valueOf(CommandLine.getAnswerAsString("Choose an employee type:", EmployeeType.valuesToString()));
+					String password = CommandLine.getAnswerAsString("Password:");
+					
 					s.addEmployee(fname, lname, type, password);
-				} catch (SQLException e) {
-					e.printStackTrace();
-					employeeQuestionHandlerLevelTwo(questions,option);
-				}
-				
-				break;
-			case "Disable employee":
-				System.err.println("Unimplemented function");
-				break;
-			case "Enable employee":
-				System.err.println("Unimplemented function");
-				break;
-			case "Add member":
-				String memfname = CommandLine.getAnswerAsString("First Name:");
-				String memlname = CommandLine.getAnswerAsString("Last Name:");
-				String mempassword = CommandLine.getAnswerAsString("Password:");
-				
-				try {
+					break;
+				case "Disable employee":
+					empId = CommandLine.getAnswerAsInt("Employee Id:");
+					s.setEmployeeStatus(empId, false);
+					
+					break;
+				case "Enable employee":
+					empId = CommandLine.getAnswerAsInt("Employee Id:");
+					s.setEmployeeStatus(empId, true);
+				    
+					break;
+				case "Add member":
+					String memfname = CommandLine.getAnswerAsString("First Name:");
+					String memlname = CommandLine.getAnswerAsString("Last Name:");
+					String mempassword = CommandLine.getAnswerAsString("Password:");
+					
 					s.addMember(memfname, memlname, mempassword, Database.getCurrentDate());
-				} catch (SQLException e) {
-					e.printStackTrace();
-					employeeQuestionHandlerLevelTwo(questions,option);
-				}
-				break;
-			case "Disable member":
-				System.err.println("Unimplemented function");
-				break;
-			case "Enable member":
-				System.err.println("Unimplemented function");
-				break;
-			case "Promote employee":
-				System.err.println("Unimplemented function");
-				break;
-			case "Demote employee":
-				System.err.println("Unimplemented function");
-				break;
-			case "Change product price":
-				System.err.println("Unimplemented function");
-				break;
-			case "Order products":
-				System.err.println("Unimplemented function");
-				break;
-			case "Add product to system":
-				System.err.println("Unimplemented function");
-				break;
-			case "Sell product(Cash)":
-				System.err.println("Unimplemented function");
-				break;
-			case "Sell product(Card)":
-				System.err.println("Unimplemented function");
-				break;
-			case "Return product":
-				System.err.println("Unimplemented function");
-				break;
-			case "Change First Name":
-				System.err.println("Unimplemented function");
-				break;	
-			case "Change Last Name":
-				System.err.println("Unimplemented function");
-				break;
-			case "Change Password":
-				System.err.println("Unimplemented function");
-				break;
-			case "Cancel":
-				throw new CancelException();
+					break;
+				case "Disable member":
+					memId = CommandLine.getAnswerAsInt("Member Id:");
+					s.setMemberStatus(memId, false);
+					
+					break;
+				case "Enable member":
+					memId = CommandLine.getAnswerAsInt("Member Id:");
+					s.setMemberStatus(memId, true);
+					
+					break;
+				case "Promote employee":
+					System.err.println("Unimplemented function");
+					break;
+				case "Demote employee":
+					System.err.println("Unimplemented function");
+					break;
+				case "Change product price":
+					System.err.println("Unimplemented function");
+					break;
+				case "Order products":
+					System.err.println("Unimplemented function");
+					break;
+				case "Add product to system":
+					System.err.println("Unimplemented function");
+					break;
+				case "Sell product(Cash)":
+					System.err.println("Unimplemented function");
+					break;
+				case "Sell product(Card)":
+					System.err.println("Unimplemented function");
+					break;
+				case "Return product":
+					System.err.println("Unimplemented function");
+					break;
+				case "Change First Name":
+					System.err.println("Unimplemented function");
+					break;	
+				case "Change Last Name":
+					System.err.println("Unimplemented function");
+					break;
+				case "Change Password":
+					System.err.println("Unimplemented function");
+					break;
+				case "Cancel":
+					throw new CancelException();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			employeeQuestionHandlerLevelTwo(questions,option);
+		} catch (InvalidIdException e) {
+			e.printStackTrace();
+			employeeQuestionHandlerLevelTwo(questions,option);
 		}
 	}
 }
