@@ -209,4 +209,50 @@ public class Store {
 		
 		return store;
 	}
+
+	public void changeEmployeeType(int empId, boolean promote) throws InvalidIdException {
+		Employee emp = Employee.getEmployeeById(empId);
+		
+		if (emp == null) {
+			throw new InvalidIdException();
+		} else {
+			if (promote) {
+				emp.promote();
+			} else {
+				emp.demote();
+			}
+		}
+	}
+	
+	/**
+	 * Changes the price of all batches of this product type
+	 * @param productTypeId
+	 * @param price
+	 */
+	public void changeProductPrice(int productTypeId, int price) {
+		try {	
+			String dbName = PosSystem.getDatabase().getDbName();
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			String query = "UPDATE " + dbName + ".productbatch " +
+					"SET price = ? " +
+					"WHERE (productType = ?" +
+					") AND (NOT EXISTS (select * from " + dbName + ".salebatches " +
+							         "WHERE salebatches.batchId = productbatch.batchId))";
+	    	stmt = con.prepareStatement(query);
+	    	stmt.setInt(1, price);
+			stmt.setInt(2, productTypeId);
+			
+			PosSystem.getDatabase().executeQuery(stmt);
+			stmt.close();
+			con.close();
+		} catch (Exception e) {
+			System.err.println("Failed to update product price");
+		}
+	}
 }
+
+
+//SELECT *
+//FROM suppliers
+//WHERE not exists (select * from orders Where suppliers.supplier_id = orders.supplier_id);

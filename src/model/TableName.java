@@ -11,5 +11,6 @@ public enum TableName {
 	STORE,
 	SHELF,
 	STORAGE,
-	SALE
+	SALE,
+	PRODUCTTYPE
 }

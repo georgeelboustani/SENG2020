@@ -14,14 +14,14 @@ import view.*;
 public class Main {
 	
 	private static int storeId = 1;
-	private static Employee currentEmployee = null;
-	private static Member currentMember = null;
+	public static Employee currentEmployee = null;
+	public static Member currentMember = null;
 	private static boolean activeUser = false;
 	
 	public static void main(String[] args) {
 		try {
 			PosSystem.initialise(new Database("user","pass"), storeId);
-		} catch (InvalidIdException e) {
+		} catch (InvalidIdException e) {	
 			System.err.println("Pos system failed to run. Invalid store id configuration.");
 		}
 		

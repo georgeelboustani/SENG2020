@@ -1,6 +1,7 @@
 package model;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mysql.jdbc.Connection;
@@ -10,12 +11,12 @@ import database.Database;
 public class ProductBatch {
 	
 	private int batchId;
-	private ProductType type;
+	private String type;
 	private Date expiry;
 	private double price;
 	private int amount;
 		
-	public ProductBatch(int batchId, ProductType type, Date expiry, double price, int amount) {
+	public ProductBatch(int batchId, String type, Date expiry, double price, int amount) {
 		this.batchId = batchId;
 		this.type = type;
 		this.expiry = expiry;
@@ -45,7 +46,7 @@ public class ProductBatch {
 		return this.batchId;
 	}
 
-	public ProductType getProductType() {
+	public String getProductType() {
 		return type;
 	}
 
@@ -69,8 +70,27 @@ public class ProductBatch {
 		return amount;
 	}
 
+	//TODO: Test
 	public void setAmount(int amount) {
-		this.amount = amount;
+		try {
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".productbatch " +
+					       "SET amount = ? " +
+					       "WHERE batchId = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setInt(1, amount);
+			stmt.setInt(2, this.batchId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+			con.close();
+			this.amount = amount;
+		} catch (Exception e) {
+			System.err.println("Failed to set amount");
+		}
+
 	}
 
 	public boolean removeProducts(int amount) {
@@ -80,5 +100,23 @@ public class ProductBatch {
 		} else {
 			return false;
 		}
+	}
+	
+	public static ProductBatch getBatchById(int id) {
+		ProductBatch batch = null;
+		
+		try {
+			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.productbatch WHERE id = " + id).executeQuery();
+			tables.next();
+			batch = new ProductBatch(tables.getInt("batchId"),
+					                 tables.getString("productType"),
+					                 tables.getDate("expiry"),
+					                 tables.getDouble("price"),
+					                 tables.getInt("amount"));
+		} catch (SQLException e) {
+			return null;
+		}
+		
+		return batch;
 	}
 }

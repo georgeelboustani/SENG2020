@@ -8,6 +8,10 @@ public class Trolley {
 	
 	private ArrayList<ProductBatch> products;
 	
+	public Trolley() {
+		this.products = new ArrayList<ProductBatch>();
+	}
+	
 	public Trolley(ArrayList<ProductBatch> products) {
 		this.products = products;
 	}
@@ -36,6 +40,22 @@ public class Trolley {
 		}
 		
 		return valid;
+	}
+
+	public void addProductBatch(ProductBatch productBatch) {
+		boolean exists = false;
+		for (ProductBatch batch: products) {
+			if (batch.getProductType().equals(productBatch.getProductType())) {
+				if (batch.getExpiry().equals(productBatch.getExpiry())) {
+					exists = true;
+					batch.setAmount(batch.getAmount() + productBatch.getAmount());
+					break;
+				}
+			}
+		}
+		if (!exists) {
+			products.add(productBatch);
+		}
 	}
 	
 }

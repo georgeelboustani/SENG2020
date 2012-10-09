@@ -70,19 +70,89 @@ public class Employee {
 	}
 	
 	public void setType(EmployeeType type) {
-		this.type = type;
+		try {
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
+					       "SET employeeType = ? " +
+					       "WHERE id = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setString(1, type.toString());
+			stmt.setInt(2, this.employeeId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+			con.close();
+			this.type = type;
+		} catch (Exception e) {
+			System.err.println("Failed to set type");
+		}
 	}
 	
 	public void setPassword(String password) {
+		try {
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
+					       "SET password = ? " +
+					       "WHERE id = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setString(1, password);
+			stmt.setInt(2, this.employeeId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+			con.close();
+			this.password = password;
+		} catch (Exception e) {
+			System.err.println("Failed to set password");
+		}
 		this.password = password;
 	}
 	
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		try {
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
+					       "SET fname = ? " +
+					       "WHERE id = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setString(1, firstName);
+			stmt.setInt(2, this.employeeId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+			con.close();
+			this.firstName = firstName;
+		} catch (Exception e) {
+			System.err.println("Failed to set firstname");
+		}
 	}
 	
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		try {
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getDatabase().getConnection();
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
+					       "SET lname = ? " +
+					       "WHERE id = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setString(1, lastName);
+			stmt.setInt(2, this.employeeId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+			con.close();
+			this.lastName = lastName;
+		} catch (Exception e) {
+			System.err.println("Failed to set lastname");
+		}
+
 	}
 	
 	public void setActiveStatus(boolean active) {	
@@ -92,15 +162,18 @@ public class Employee {
 				Connection con = PosSystem.getDatabase().getConnection();
 				
 				String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
-						       "SET active = ?" +
+						       "SET active = ? " +
 						       "WHERE id = ?";
 				
+				System.out.println(active);
 		    	stmt = con.prepareStatement(query);
 				stmt.setBoolean(1, active);
 				stmt.setInt(2, this.employeeId);
 				
 				PosSystem.getDatabase().executeQuery(stmt);
 				con.close();
+				
+				this.activeStatus = active;
 			}
 		} catch (Exception e) {
 			System.err.println("Failed to update active status");
@@ -119,5 +192,32 @@ public class Employee {
 		}
 		
 		return emp;
+	}
+
+	public void demote() {
+		switch (this.type) {
+			case STAFF:
+				break;
+			case MANAGER:
+				this.setType(EmployeeType.STAFF);
+				break;
+			case ADMIN:
+				this.setType(EmployeeType.MANAGER);
+				break;
+		}
+	}
+	
+	public void promote() {
+		switch (this.type) {
+			case STAFF:
+				System.out.println("HEREEEEEEEEEEEEEEEEEEEEE");
+				this.setType(EmployeeType.MANAGER);
+				break;
+			case MANAGER:
+				this.setType(EmployeeType.ADMIN);
+				break;
+			case ADMIN:
+				break;
+		}
 	}
 }

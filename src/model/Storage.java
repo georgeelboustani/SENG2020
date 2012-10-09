@@ -19,15 +19,17 @@ public class Storage {
 	private int id;
 	private List<Shelf> shelves;
 	private StorageType type;
-	private Map<ProductType, Integer> maxProducts;
-	private Map<ProductType, Integer> thresholds;
+	
+	// Maps between product types and integers
+	private Map<String, Integer> maxProducts;
+	private Map<String, Integer> thresholds;
 	
 	public Storage(int id, StorageType type) {
 		this.id = id;
 		this.type = type;
 		shelves = new ArrayList<Shelf>();
-		maxProducts = new HashMap<ProductType, Integer>();
-		thresholds = new HashMap<ProductType, Integer>();
+		maxProducts = new HashMap<String, Integer>();
+		thresholds = new HashMap<String, Integer>();
 	}
 	
 	public void persist(Database db) throws SQLException {
@@ -92,7 +94,7 @@ public class Storage {
 		
 		int max = 0;
 
-		for (Entry<ProductType, Integer> num: maxProducts.entrySet()){
+		for (Entry<String, Integer> num: maxProducts.entrySet()){
 			max += num.getValue();
 		}
 		
