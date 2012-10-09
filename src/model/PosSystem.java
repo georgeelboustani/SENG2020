@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.Database;
-import exception.InvalidStoreIdException;
+import exception.InvalidIdException;
 
 public class PosSystem {
 	
@@ -18,12 +18,12 @@ public class PosSystem {
 		
 	}
 	
-	public static void initialise(Database db, int storeId) throws InvalidStoreIdException {
+	public static void initialise(Database db, int storeId) throws InvalidIdException {
 		PosSystem.db = db;
 		
 		if (Store.getStoreById(storeId) == null) {
 			initialisationSuccessful = false;
-			throw new InvalidStoreIdException();
+			throw new InvalidIdException();
 		} else {
 			PosSystem.storeId = storeId;
 			initialisationSuccessful = true;

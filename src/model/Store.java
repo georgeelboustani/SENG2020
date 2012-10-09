@@ -10,6 +10,7 @@ import java.util.Iterator;
 import com.mysql.jdbc.Connection;
 
 import database.Database;
+import exception.InvalidIdException;
 
 public class Store {
 	
@@ -73,6 +74,26 @@ public class Store {
 		reg.persist(PosSystem.getDatabase());
 		
 		persistRegisterMapping(reg);
+	}
+	
+	public void setEmployeeStatus(int id, boolean active) throws InvalidIdException {
+		Employee emp = Employee.getEmployeeById(id);
+		
+		if (emp == null) {
+			throw new InvalidIdException();
+		} else {
+			emp.setActiveStatus(active);
+		}
+	}
+	
+	public void setMemberStatus(int id, boolean active) throws InvalidIdException {
+		Member mem = Member.getMemberById(id);
+		
+		if (mem == null) {
+			throw new InvalidIdException();
+		} else {
+			mem.setActiveStatus(active);
+		}
 	}
 	
 	public void addSale(Date date, Trolley products) throws SQLException {
