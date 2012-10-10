@@ -17,6 +17,7 @@ import model.ProductBatch;
 import model.ProductType;
 import model.Sale;
 import model.Shelf;
+import model.Storage;
 import model.Store;
 import model.TableName;
 import model.Trolley;
@@ -191,20 +192,46 @@ public class EmployeeOptions {
 				case "Receive Order":
 					System.err.println("Unimplemented function");
 					break;
+					//TODO: IMPORTANT increase stock counts on shelve when adding products
 				case "Add product to system":
 					String productName = CommandLine.getAnswerAsString("Product Name:");
 					String productDescription = CommandLine.getAnswerAsString("Product Description:");
 					
 					ProductType.addProductType(productName, productDescription);
 					break;
-					//TODO: Transfer products
+
 				case "Transfer products":
+					int fromShelfId = CommandLine.getAnswerAsInt("From shelf id:");
+					while( Shelf.getShelfById(fromShelfId) == null){
+						fromShelfId = CommandLine.getAnswerAsInt("Enter a from shelf id which exists:");
+					}
+					
+					int toShelfId = CommandLine.getAnswerAsInt("To shelf id:");
+					while( Shelf.getShelfById(toShelfId) == null){
+						toShelfId = CommandLine.getAnswerAsInt("Enter a to shelf id which exists:");
+					}
+					
+					int batchId = CommandLine.getAnswerAsInt("Product batch id:");
+					while( ProductBatch.getBatchById(batchId) == null){
+						batchId = CommandLine.getAnswerAsInt("Enter a product batch id which exists");
+					}
+					
+					if (Shelf.isOnShelf(batchId, fromShelfId)) {
+						String amount = CommandLine.getAnswerAsString("Quantity [1," + ProductBatch.getBatchById(batchId).getAmount() + "]: ");
+						if(!DataValidator.validateInt(amount, 0, ProductBatch.getBatchById(batchId).getAmount())){
+							amount = CommandLine.getAnswerAsString("Input a quantity between 1 and " + ProductBatch.getBatchById(batchId).getAmount() + ": ");
+						}
+						
+						Storage.transfer(fromShelfId, toShelfId, batchId, Integer.parseInt(amount));
+					} else {
+						System.out.println("The product batch of id " + batchId + " is not on the shelf of id "+ fromShelfId);
+						throw new CancelException();
+					}
 					break;
-					//TODO: HARD
 				case "Sell product(Cash)":
 					handleSale();
 					break;
-					//TODO: NEED TO TEST!
+
 				case "Sell product(Card)":
 					handleSale();
 					// TODO - ask for credit card info
@@ -252,7 +279,7 @@ public class EmployeeOptions {
 				ProductBatch oldBatch = ProductBatch.getBatchById(batchId);
 				
 				while(oldBatch == null || !Shelf.isOnShelf(batchId)){
-					batchId = CommandLine.getAnswerAsInt("Enter a valid Batch Id: ");
+					batchId = CommandLine.getAnswerAsInt("A batch with the given id must exist and be on the shelf: ");
 					oldBatch = ProductBatch.getBatchById(batchId);
 				}
 				

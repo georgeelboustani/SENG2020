@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,41 +79,6 @@ public class Storage {
 		return shelves;
 	}
 	
-	public void addShelf(ProductCategory cat, int capacity) {
-		Shelf newShelf = new Shelf(shelves.size(), capacity);
-		shelves.add(newShelf);
-		newShelf.assignCategory(cat);
-	}
-	
-	public void addShelf(int capacity,int numShelves) {
-		for (int i = 0; i < numShelves; i++) {
-			Shelf newShelf = new Shelf(shelves.size(), capacity);
-			shelves.add(newShelf);
-		}
-	}
-	
-	public int getRemainingSpace() {
-		
-		int max = 0;
-
-		for (Entry<String, Integer> num: maxProducts.entrySet()){
-			max += num.getValue();
-		}
-		
-		return max - getNumProducts();
-	}
-
-	//CTL
-	public int getNumProductsOfType(ProductType type) {
-		int numProducts = 0;
-		
-		for (Shelf currentShelf: shelves){
-			numProducts += currentShelf.getNumProductsOfType(type);
-		}
-		
-		return numProducts;
-	}
-	
 	public int getNumProducts() {
 		int numProducts = 0;
 		
@@ -123,36 +89,36 @@ public class Storage {
 		return numProducts;
 	}
 	
-	public void addItem(int shelfId, ProductBatch product) {
-		
-		for (Shelf currentShelf: shelves){
-			if (currentShelf.getShelfId() == shelfId) {
-				currentShelf.addProductBatch(product);
+	public static void transfer(int fromShelfId, int toShelfId, int batchId, int amount) throws SQLException {
+		if(Shelf.isOnShelf(batchId,fromShelfId) && amount <= Shelf.getShelfById(toShelfId).getMaxProducts() - Shelf.getShelfById(toShelfId).getCurrentAmount()) {
+			
+			ProductBatch oldBatch = ProductBatch.getBatchById(batchId);
+			if (oldBatch.getAmount() >= amount) {
+				// TODO - Check if toShelf can fit this many of this product
+				ProductBatch newBatch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH),
+						                                 oldBatch.getProductType(),
+						                                 oldBatch.getExpiry(),
+						                                 oldBatch.getPrice(),
+						                                 amount);
+				
+				Shelf.addToShelf(toShelfId, newBatch);
+				oldBatch.setAmount(oldBatch.getAmount() - amount);
+				Shelf.setCurrentAmount(Shelf.getShelfById(fromShelfId).getCurrentAmount() - amount, fromShelfId);
 			}
 		}
+	}
+	
+	public static Storage getStorageById(int id) {
+		Storage storage = null;
 		
-	}
-	
-	public void addItem(int shelfId, ProductBatch product, int threshold) {
-		thresholds.put(product.getProductType(), threshold);
-		addItem(shelfId,product);
-	}
-	
-	public static void transfer(Storage from, Storage to, int batchId, int amount) {
-		/*
-		 * Batch id exists in 
-		 */
-		//sdfsdf
-	}
-	
-	//CTL
-	public boolean underThreshold(ProductType type){
-		boolean underThreshold = false;
-		
-		if ((getNumProductsOfType(type)/maxProducts.get(type)) * 100 < thresholds.get(type)){
-			underThreshold = true;
+		try {
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.storage WHERE id = " + id).executeQuery();
+			tables.next();
+			storage = new Storage(tables.getInt("id"),StorageType.valueOf(tables.getString("type")));
+		} catch (SQLException e) {
+			return null;
 		}
-
-		return underThreshold;
+		
+		return storage;
 	}
 }

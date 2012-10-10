@@ -42,6 +42,7 @@ public class ProductBatch {
 		db.executeQuery(stmt);
 	}
 	
+	
 	public int getBatchId() {
 		return this.batchId;
 	}

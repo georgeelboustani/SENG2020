@@ -16,11 +16,6 @@ public class Store {
 	
 	private int storeId;
 	
-	// 
-	// TODO - FUCKING IMPORTANT!! Can get rid of these lists and add methods to the respective classes to
-	// grab them by their id's
-	private ArrayList<Employee> employees;
-	private ArrayList<Register> registers;
 	
 	private Storage floorspace;
 	private Storage backroom;
@@ -30,8 +25,6 @@ public class Store {
 	public Store(int id) {
 		this.storeId = id;
 		
-		employees = new ArrayList<Employee>();
-		registers = new ArrayList<Register>();
 		sales = new ArrayList<Sale>();
 		
 		floorspace = new Storage(0,StorageType.FLOOR);
@@ -70,7 +63,6 @@ public class Store {
 	
 	public void addRegister() throws SQLException {
 		Register reg = new Register(PosSystem.generateNextId(TableName.REGISTER));
-		registers.add(reg);
 		reg.persist();
 		
 		persistRegisterMapping(reg);
@@ -165,24 +157,12 @@ public class Store {
 		// and update database record
 	}
 	
-	public void addFloorSpace(int shelves, int shelfCapacity) {
-		floorspace.addShelf(shelfCapacity,shelves);
-	}
-	
 	public void removeEmployee(int id) {
-		for( Employee e: employees){
-			if(e.getEmployeeId()==id){
-				employees.remove(e);
-			}
-		}
+		// TODO - remove from database
 	}
 	
 	public void removeRegister(int id) {
-		for( Register r: registers){
-			if(r.getId()==id){
-				registers.remove(r);
-			}
-		}
+		// TODO - remove from database
 	}
 	
 	public int getStoreId() {
