@@ -24,9 +24,10 @@ public class ProductBatch {
 		this.amount = amount;
 	}
 
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".productbatch (`batchId`,`productType`,`expiry`,`price`,`amount`) " +
 				"VALUES (?,?,?,?,?)";
@@ -39,7 +40,6 @@ public class ProductBatch {
 		stmt.setInt(5, this.amount);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 	
 	public int getBatchId() {
@@ -70,11 +70,30 @@ public class ProductBatch {
 		return amount;
 	}
 
-	//TODO: Test
-	public void setAmount(int amount) {
+
+	public void delete() {
+		Connection con = PosSystem.getConnection();
+		
 		try {
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
+
+			String query = "DELETE FROM " + PosSystem.getDatabase().getDbName() + ".productbatch " +
+					       "WHERE batchId = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setInt(1, this.batchId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+		} catch (Exception e) {
+			System.err.println("Failed to delete");
+		}
+
+	}
+	
+	public void setAmount(int amount) {
+		Connection con = PosSystem.getConnection();
+		try {
+			PreparedStatement stmt = null;
 			
 			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".productbatch " +
 					       "SET amount = ? " +
@@ -85,12 +104,11 @@ public class ProductBatch {
 			stmt.setInt(2, this.batchId);
 
 			PosSystem.getDatabase().executeQuery(stmt);
-			con.close();
+
 			this.amount = amount;
 		} catch (Exception e) {
 			System.err.println("Failed to set amount");
 		}
-
 	}
 
 	public boolean removeProducts(int amount) {
@@ -104,9 +122,9 @@ public class ProductBatch {
 	
 	public static ProductBatch getBatchById(int id) {
 		ProductBatch batch = null;
-		
+		Connection con = PosSystem.getConnection();
 		try {
-			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.productbatch WHERE id = " + id).executeQuery();
+			ResultSet tables = con.prepareStatement("SELECT * FROM seng2020.productbatch WHERE batchId = " + id).executeQuery();
 			tables.next();
 			batch = new ProductBatch(tables.getInt("batchId"),
 					                 tables.getString("productType"),
@@ -116,7 +134,7 @@ public class ProductBatch {
 		} catch (SQLException e) {
 			return null;
 		}
-		
+
 		return batch;
 	}
 }

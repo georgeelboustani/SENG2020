@@ -23,9 +23,10 @@ public class Supplier {
 		this.description = description;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".supplier (`supplierId`,`name`,`address`,`phone`,`description`) " +
 				"VALUES (?,?,?,?,?)";
@@ -38,7 +39,6 @@ public class Supplier {
 		stmt.setString(5, this.description);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 
 	public int getSupplierId() {

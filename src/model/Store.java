@@ -41,16 +41,16 @@ public class Store {
 	
 	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
-		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".store (`id`) " +
+		String query = "INSERT into " + db.getDbName() + ".store (`id`) " +
 				"VALUES (?)";
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.storeId);
 		
-		PosSystem.getDatabase().executeQuery(stmt);
-		con.close();
+		db.executeQuery(stmt);
 		
 		persistStorageMapping(floorspace);
 		persistStorageMapping(backroom);
@@ -71,7 +71,7 @@ public class Store {
 	public void addRegister() throws SQLException {
 		Register reg = new Register(PosSystem.generateNextId(TableName.REGISTER));
 		registers.add(reg);
-		reg.persist(PosSystem.getDatabase());
+		reg.persist();
 		
 		persistRegisterMapping(reg);
 	}
@@ -98,21 +98,21 @@ public class Store {
 	
 	public void addSale(Date date, Trolley products) throws SQLException {
 		Sale newSale = new Sale(PosSystem.generateNextId(TableName.SALE), date, products);
-		newSale.persist(PosSystem.getDatabase());
+		newSale.persist();
 		
 		persistSaleMapping(newSale);
 	}
 	
 	public void addWarehouse() throws SQLException {
 		Storage w = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.WAREHOUSE);
-		w.persist(PosSystem.getDatabase());
+		w.persist();
 		
 		persistStorageMapping(w);
 	} 
 	
 	private void persistStorageMapping(Storage s) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storestorage (`storeId`,`storageId`) " +
 				"VALUES (?,?)";
 		stmt = con.prepareStatement(query);
@@ -120,12 +120,11 @@ public class Store {
 		stmt.setInt(2, s.getId());
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		con.close();
 	}
 	
 	private void persistSaleMapping(Sale s) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storesale (`storeId`,`saleId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
@@ -133,13 +132,11 @@ public class Store {
 		stmt.setInt(2, s.getSaleId());
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		stmt.close();
-		con.close();
 	}
 	
 	private void persistRegisterMapping(Register reg) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeregister (`storeId`,`registerId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
@@ -147,13 +144,11 @@ public class Store {
 		stmt.setInt(2, reg.getId());
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		stmt.close();
-		con.close();
 	}
 	
 	private void persistEmployeeMapping(Employee emp) throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeemployee (`storeId`,`employeeId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
@@ -161,8 +156,6 @@ public class Store {
 		stmt.setInt(2, emp.getEmployeeId());
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		stmt.close();
-		con.close();
 	}
 	
 	
@@ -200,7 +193,7 @@ public class Store {
 		Store store = null;
 		
 		try {
-			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.store WHERE id = " + storeId).executeQuery();
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.store WHERE id = " + storeId).executeQuery();
 			tables.next();
 			store = new Store(tables.getInt("id"));
 		} catch (SQLException e) {
@@ -231,28 +224,22 @@ public class Store {
 	 */
 	public void changeProductPrice(int productTypeId, int price) {
 		try {	
-			String dbName = PosSystem.getDatabase().getDbName();
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
-			String query = "UPDATE " + dbName + ".productbatch " +
+			Database db = PosSystem.getDatabase();
+			Connection con = PosSystem.getConnection();
+			
+			String query = "UPDATE " + db.getDbName() + ".productbatch " +
 					"SET price = ? " +
 					"WHERE (productType = ?" +
-					") AND (NOT EXISTS (select * from " + dbName + ".salebatches " +
+					") AND (NOT EXISTS (select * from " + db.getDbName() + ".salebatches " +
 							         "WHERE salebatches.batchId = productbatch.batchId))";
 	    	stmt = con.prepareStatement(query);
 	    	stmt.setInt(1, price);
 			stmt.setInt(2, productTypeId);
 			
-			PosSystem.getDatabase().executeQuery(stmt);
-			stmt.close();
-			con.close();
+			db.executeQuery(stmt);
 		} catch (Exception e) {
 			System.err.println("Failed to update product price");
 		}
 	}
 }
-
-
-//SELECT *
-//FROM suppliers
-//WHERE not exists (select * from orders Where suppliers.supplier_id = orders.supplier_id);

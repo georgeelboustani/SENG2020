@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.Database;
@@ -18,7 +19,7 @@ public class Main {
 	public static Member currentMember = null;
 	private static boolean activeUser = false;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		try {
 			PosSystem.initialise(new Database("user","pass"), storeId);
 		} catch (InvalidIdException e) {	
@@ -43,6 +44,8 @@ public class Main {
 			} catch (CancelException e) {
 				
 			}
+			
+			PosSystem.refreshConnection();
 		}
 	}
 	

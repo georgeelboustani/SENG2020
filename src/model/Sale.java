@@ -28,9 +28,10 @@ public class Sale {
 		this.products = products;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".sale (`saleId`,`date`) " +
 				"VALUES (?,?)";
@@ -40,14 +41,15 @@ public class Sale {
 		stmt.setDate(2, this.date);
 		
 		db.executeQuery(stmt);
-		con.close();
 		
-		persistProductMapping(db);
+		persistProductMapping();
 	}
 	
-	public void persistProductMapping(Database db) throws SQLException {
+	public void persistProductMapping() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
+		
 		String query = "INSERT into " + db.getDbName() + ".salebatches (`saleId`,`batchId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
@@ -58,9 +60,6 @@ public class Sale {
 			stmt.setInt(2, itr.next().getBatchId());
 			db.executeQuery(stmt);
 		}
-		
-		stmt.close();
-		con.close();
 	}
 
 	public int getSaleId() {

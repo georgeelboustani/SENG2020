@@ -25,8 +25,6 @@ public class testDatabase {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("EMPLOYEEEE");
 	}
 	
 	@Test @Ignore
@@ -37,13 +35,13 @@ public class testDatabase {
 		Employee testEmp = new Employee(5,"YOO","B",EmployeeType.STAFF,"pass");
 		testEmp.persist();
 
-		PosSystem.getDatabase().executeQuery( PosSystem.getDatabase().getConnection().prepareStatement("INSERT INTO seng2020.register (`registerId`, `balance`, `currentEmployee`)VALUES(2, 5, 5)"));
+		PosSystem.getDatabase().executeQuery( PosSystem.getConnection().prepareStatement("INSERT INTO seng2020.register (`registerId`, `balance`, `currentEmployee`)VALUES(2, 5, 5)"));
 		
 		LogEntry testLog = new LogEntry(0, Database.getCurrentDate(),5,"Test Description", 2);
 		
 		
 		try {
-			testLog.persist(PosSystem.getDatabase());
+			testLog.persist();
 			//TODO: Persist test doesn't actually throw - fix test
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -99,4 +97,6 @@ public class testDatabase {
 		testEmp.setLastName("Jobs");
 		testEmp.setPassword("Apple");
 	}
+	
+
 }

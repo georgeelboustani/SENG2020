@@ -32,9 +32,10 @@ public class Storage {
 		thresholds = new HashMap<String, Integer>();
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".storage (`id`,`type`) " +
 				"VALUES (?,?)";
@@ -44,14 +45,15 @@ public class Storage {
 		stmt.setString(2, this.type.toString());
 		
 		db.executeQuery(stmt);
-		con.close();
 		
-		persistShelfMapping(db);
+		persistShelfMapping();
 	}
 	
-	private void persistShelfMapping(Database db) throws SQLException {
+	private void persistShelfMapping() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
+
 		String query = "INSERT into " + db.getDbName() + ".storageshelf (`storageId`,`shelfId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
@@ -62,7 +64,6 @@ public class Storage {
 			stmt.setInt(2, itr.next().getShelfId());
 			db.executeQuery(stmt);
 		}
-		con.close();
 	}
 	
 	public int getId(){
@@ -137,6 +138,13 @@ public class Storage {
 		addItem(shelfId,product);
 	}
 	
+	public static void transfer(Storage from, Storage to, int batchId, int amount) {
+		/*
+		 * Batch id exists in 
+		 */
+		//sdfsdf
+	}
+	
 	//CTL
 	public boolean underThreshold(ProductType type){
 		boolean underThreshold = false;
@@ -144,9 +152,7 @@ public class Storage {
 		if ((getNumProductsOfType(type)/maxProducts.get(type)) * 100 < thresholds.get(type)){
 			underThreshold = true;
 		}
-		
+
 		return underThreshold;
 	}
-	
-	//TODO: Write Function to get difference between currentProductCount and maxProductcount
 }

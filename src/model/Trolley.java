@@ -1,5 +1,6 @@
 package model;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -41,8 +42,12 @@ public class Trolley {
 		
 		return valid;
 	}
-
-	public void addProductBatch(ProductBatch productBatch) {
+	
+	/** 
+	 * @param productBatch
+	 * @return true if productBatct exists, false otherwise
+	 */
+	public boolean addProductBatch(ProductBatch productBatch) {
 		boolean exists = false;
 		for (ProductBatch batch: products) {
 			if (batch.getProductType().equals(productBatch.getProductType())) {
@@ -56,6 +61,13 @@ public class Trolley {
 		if (!exists) {
 			products.add(productBatch);
 		}
+		
+		return exists;
 	}
-	
+
+	public void persist() throws SQLException {
+		for(ProductBatch batch: products){
+			batch.persist();
+		}
+	}
 }

@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.mysql.jdbc.Connection;
+
 import database.Database;
 import exception.InvalidIdException;
 
@@ -13,14 +15,14 @@ public class PosSystem {
 	private static Database db;
 	private static int storeId;
 	private static boolean initialisationSuccessful;
-	
+	private static Connection con;
 	private PosSystem() {
 		
 	}
 	
-	public static void initialise(Database db, int storeId) throws InvalidIdException {
+	public static void initialise(Database db, int storeId) throws InvalidIdException, SQLException {
 		PosSystem.db = db;
-		
+		PosSystem.con = db.createConnection();
 		if (Store.getStoreById(storeId) == null) {
 			initialisationSuccessful = false;
 			throw new InvalidIdException();
@@ -48,8 +50,12 @@ public class PosSystem {
 		return initialisationSuccessful;
 	}
 	
+	public static Connection getConnection() {
+		return con;
+	}
+	
 	public static int generateNextId(TableName table) throws SQLException {
-		ResultSet rows = db.getConnection().prepareStatement("SELECT * FROM " + db.getDbName() + "." + table.toString()).executeQuery();
+		ResultSet rows = con.prepareStatement("SELECT * FROM " + db.getDbName() + "." + table.toString()).executeQuery();
 		
 		int maxId = 0;
 		while (rows.next()) {
@@ -59,5 +65,16 @@ public class PosSystem {
 		}
 		
 		return ++maxId;
+	}
+	
+	
+	public static void refreshConnection() throws SQLException {
+		try {
+			con.close();
+			PosSystem.con = db.createConnection();
+		} catch (SQLException e) {
+			System.err.println("Error: Failed to refresh connection");
+			throw e;
+		}
 	}
 }

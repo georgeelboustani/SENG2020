@@ -28,7 +28,7 @@ public class Employee {
 	
 	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".employee (`id`,`fname`,`lname`,`employeeType`,`password`,`active`) " +
 				"VALUES (?,?,?,?,?,?)";
@@ -42,7 +42,6 @@ public class Employee {
 		stmt.setBoolean(6, this.activeStatus);
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		con.close();
 	}
 
 	public int getEmployeeId() {
@@ -70,9 +69,10 @@ public class Employee {
 	}
 	
 	public void setType(EmployeeType type) {
+		Connection con = PosSystem.getConnection();
+		
 		try {
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
 			
 			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
 					       "SET employeeType = ? " +
@@ -83,7 +83,6 @@ public class Employee {
 			stmt.setInt(2, this.employeeId);
 
 			PosSystem.getDatabase().executeQuery(stmt);
-			con.close();
 			this.type = type;
 		} catch (Exception e) {
 			System.err.println("Failed to set type");
@@ -91,9 +90,10 @@ public class Employee {
 	}
 	
 	public void setPassword(String password) {
+		Connection con = PosSystem.getConnection();
+		
 		try {
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
 			
 			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
 					       "SET password = ? " +
@@ -104,18 +104,18 @@ public class Employee {
 			stmt.setInt(2, this.employeeId);
 
 			PosSystem.getDatabase().executeQuery(stmt);
-			con.close();
+			
 			this.password = password;
 		} catch (Exception e) {
 			System.err.println("Failed to set password");
 		}
-		this.password = password;
 	}
 	
 	public void setFirstName(String firstName) {
+		Connection con = PosSystem.getConnection();
+		
 		try {
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
 			
 			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
 					       "SET fname = ? " +
@@ -134,9 +134,10 @@ public class Employee {
 	}
 	
 	public void setLastName(String lastName) {
+		Connection con = PosSystem.getConnection();
+		
 		try {
-			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
+			PreparedStatement stmt = null;	
 			
 			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
 					       "SET lname = ? " +
@@ -147,19 +148,19 @@ public class Employee {
 			stmt.setInt(2, this.employeeId);
 
 			PosSystem.getDatabase().executeQuery(stmt);
-			con.close();
+			
 			this.lastName = lastName;
 		} catch (Exception e) {
 			System.err.println("Failed to set lastname");
 		}
-
 	}
 	
 	public void setActiveStatus(boolean active) {	
+		Connection con = PosSystem.getConnection();
+		
 		try {
 			if (active != this.activeStatus) {
 				PreparedStatement stmt = null;
-				Connection con = PosSystem.getDatabase().getConnection();
 				
 				String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".employee " +
 						       "SET active = ? " +
@@ -171,7 +172,6 @@ public class Employee {
 				stmt.setInt(2, this.employeeId);
 				
 				PosSystem.getDatabase().executeQuery(stmt);
-				con.close();
 				
 				this.activeStatus = active;
 			}
@@ -184,7 +184,7 @@ public class Employee {
 		Employee emp = null;
 		
 		try {
-			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.employee WHERE id = " + id).executeQuery();
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.employee WHERE id = " + id).executeQuery();
 			tables.next();
 			emp = new Employee(tables.getInt("id"),tables.getString("fname"),tables.getString("lname"),EmployeeType.valueOf(tables.getString("employeeType")),tables.getString("password"));
 		} catch (SQLException e) {
@@ -210,7 +210,6 @@ public class Employee {
 	public void promote() {
 		switch (this.type) {
 			case STAFF:
-				System.out.println("HEREEEEEEEEEEEEEEEEEEEEE");
 				this.setType(EmployeeType.MANAGER);
 				break;
 			case MANAGER:

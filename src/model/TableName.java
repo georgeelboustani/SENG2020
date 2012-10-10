@@ -5,7 +5,7 @@ public enum TableName {
 	EMPLOYEE,
 	LOG,
 	ORDER,
-	BATCH,
+	PRODUCTBATCH,
 	CATEGORY,
 	REGISTER,
 	STORE,

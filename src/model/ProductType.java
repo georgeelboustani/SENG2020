@@ -34,7 +34,7 @@ public class ProductType {
 		try {	
 			String dbName = PosSystem.getDatabase().getDbName();
 			PreparedStatement stmt = null;
-			Connection con = PosSystem.getDatabase().getConnection();
+			Connection con = PosSystem.getConnection();
 			
 			if (getProductTypeByName(type) == null) {
 				String query = "INSERT INTO " + dbName + ".producttype " +
@@ -44,14 +44,10 @@ public class ProductType {
 		    	stmt.setInt(1, PosSystem.generateNextId(TableName.PRODUCTTYPE));
 				stmt.setString(2, type);
 				stmt.setString(3, description);
-				
-				System.out.println(stmt);
-				
+								
 				PosSystem.getDatabase().executeQuery(stmt);
 			}
 			
-			stmt.close();
-			con.close();
 		} catch (Exception e) {
 			System.err.println("Failed to create product type. It already exists");
 		}
@@ -61,7 +57,7 @@ public class ProductType {
 		ProductType type = null;
 		
 		try {
-			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.producttype WHERE name = '" + name + "'").executeQuery();
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.producttype WHERE name = '" + name + "'").executeQuery();
 			tables.next();
 			type = new ProductType(tables.getInt("typeId"),tables.getString("name"),tables.getString("description"));
 		} catch (SQLException e) {

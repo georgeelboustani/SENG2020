@@ -36,9 +36,10 @@ public class Order {
 		this.supplierId = supplierId;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".order (`id`,`dateOrdered`,`orderArrival`,`receivedDate`,`productTypeId`,`quantity`,`supplierId`) " +
 				"VALUES (?,?,?,?,?,?,?)";
@@ -53,7 +54,6 @@ public class Order {
 		stmt.setInt(7, this.supplierId);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 
 	public int getOrderId() {

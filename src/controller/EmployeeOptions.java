@@ -15,6 +15,8 @@ import model.Member;
 import model.PosSystem;
 import model.ProductBatch;
 import model.ProductType;
+import model.Sale;
+import model.Shelf;
 import model.Store;
 import model.TableName;
 import model.Trolley;
@@ -75,6 +77,7 @@ public class EmployeeOptions {
 				newQuestions.add("Order products");
 				newQuestions.add("Receive Order");
 				newQuestions.add("Add product to system");
+				newQuestions.add("Transfer products");
 				break;
 			case "Sell product":
 				newQuestions.add("Sell product(Cash)");
@@ -194,6 +197,9 @@ public class EmployeeOptions {
 					
 					ProductType.addProductType(productName, productDescription);
 					break;
+					//TODO: Transfer products
+				case "Transfer products":
+					break;
 					//TODO: HARD
 				case "Sell product(Cash)":
 					handleSale();
@@ -228,6 +234,9 @@ public class EmployeeOptions {
 		} catch (InvalidIdException e) {
 			e.printStackTrace();
 			employeeQuestionHandlerLevelTwo(questions,option);
+		} catch (CancelException e) {
+			System.out.println("Cancelled out of level two");
+			throw e;
 		}
 	}
 
@@ -242,6 +251,11 @@ public class EmployeeOptions {
 				int batchId = CommandLine.getAnswerAsInt("Batch Id: ");
 				ProductBatch oldBatch = ProductBatch.getBatchById(batchId);
 				
+				while(oldBatch == null || !Shelf.isOnShelf(batchId)){
+					batchId = CommandLine.getAnswerAsInt("Enter a valid Batch Id: ");
+					oldBatch = ProductBatch.getBatchById(batchId);
+				}
+				
 				if (oldBatch.getAmount() != 0) {
 					String quantity = CommandLine.getAnswerAsString("Quantity [1," + oldBatch.getAmount() + "]: ");
 					while (!DataValidator.validateInt(quantity, 1, oldBatch.getAmount())) {
@@ -250,19 +264,22 @@ public class EmployeeOptions {
 					}
 					
 					oldBatch.setAmount(oldBatch.getAmount() - Integer.parseInt(quantity));
-					ProductBatch newBatch = new ProductBatch(PosSystem.generateNextId(TableName.BATCH),
+					ProductBatch newBatch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH),
                              					oldBatch.getProductType(),oldBatch.getExpiry(),oldBatch.getPrice(),Integer.parseInt(quantity));
-					trolley.addProductBatch(newBatch);
+					
+					boolean exists = trolley.addProductBatch(newBatch);
+					if (!exists) {
+						newBatch.persist();
+					}
 					
 					oldBatches.add(oldBatch);
 					newBatches.add(newBatch);
-					
 					addProducts = CommandLine.getYesOrNo("Would you like to add more products?");
 				} else {
 					System.out.println("Batch chosen does not exist on floor");
 				}
 			} 
-			
+	
 			boolean isMember = CommandLine.getYesOrNo("Is a member?");
 			if (isMember) {
 				int memId = CommandLine.getAnswerAsInt("Member Id: ");
@@ -274,10 +291,13 @@ public class EmployeeOptions {
 				}
 				mem.addLoyaltyPoints(loyaltyPoints);
 			}
-		} catch (CancelException e) {
+			Sale sale = new Sale(PosSystem.generateNextId(TableName.SALE),PosSystem.getDatabase().getCurrentDate(),trolley);
+			sale.persist();
+		} catch (Exception e) {
 			// Undo the subtracting of batch amount from above
 			for (int i = 0; i < oldBatches.size(); i++) {
 				oldBatches.get(i).setAmount(oldBatches.get(i).getAmount() + newBatches.get(i).getAmount());
+				newBatches.get(i).delete();
 			}
 			throw new CancelException();
 		}

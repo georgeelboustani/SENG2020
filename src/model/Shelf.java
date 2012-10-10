@@ -1,5 +1,6 @@
 package model;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,10 @@ public class Shelf {
 		this.currentAmount = 0;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".shelf (`shelfId`,`maxProducts`,`currentAmount`) " +
 				"VALUES (?,?,?)";
@@ -38,7 +40,6 @@ public class Shelf {
 		stmt.setInt(3, this.currentAmount);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 	
 	// TODO - make sure the equals still works even when saved and laoded
@@ -87,4 +88,24 @@ public class Shelf {
 	}
 	
 	
+	
+	public static boolean isOnShelf(int batchId) throws SQLException{
+		System.out.println("FUUUUUUUUUUUUUUUUUUCK");
+		PreparedStatement stmt = null;
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
+		ResultSet shelfId = null;
+		
+		String query = "SELECT * FROM " + db.getDbName() + ".shelfbatch WHERE batchId = '?'";
+			stmt = con.prepareStatement(query);
+
+    	stmt.setInt(1, batchId);
+    	System.out.println(">>" + shelfId.getString(0) + "<<");
+		shelfId = stmt.executeQuery();
+		System.out.println(">>" + shelfId.getString(0) + "<<");
+		
+		return false;
+	
+	}
+				
 }

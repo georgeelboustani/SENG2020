@@ -26,9 +26,10 @@ public class LogEntry {
 		this.registerId = registerId;
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".logentry (`logId`,`date`,`employeeId`,`description`,`registerId`) " +
 				"VALUES (?,?,?,?,?)";
@@ -41,7 +42,6 @@ public class LogEntry {
 		stmt.setInt(5, this.registerId);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 	
 }
