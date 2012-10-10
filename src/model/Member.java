@@ -31,7 +31,7 @@ public class Member {
 	
 	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = PosSystem.getDatabase().getConnection();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".member (`id`,`fname`,`lname`,`password`,`points`,`signupDate`,`active`) " +
 				"VALUES (?,?,?,?,?,?,?)";
@@ -46,7 +46,6 @@ public class Member {
 		stmt.setBoolean(7, this.activeStatus);
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-		con.close();
 	}
 	
 	public void addLoyaltyPoints(int points) {
@@ -85,7 +84,7 @@ public class Member {
 		try {
 			if (active != this.activeStatus) {
 				PreparedStatement stmt = null;
-				Connection con = PosSystem.getDatabase().getConnection();
+				Connection con = PosSystem.getConnection();
 				
 				String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".member " +
 						       "SET active = ?" +
@@ -96,7 +95,7 @@ public class Member {
 				stmt.setInt(2, this.memberId);
 				
 				PosSystem.getDatabase().executeQuery(stmt);
-				con.close();
+				
 			}
 		} catch (Exception e) {
 			System.err.println("Failed to update active status");
@@ -107,7 +106,7 @@ public class Member {
 		Member mem = null;
 		
 		try {
-			ResultSet tables = PosSystem.getDatabase().getConnection().prepareStatement("SELECT * FROM seng2020.member WHERE id = " + id).executeQuery();
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.member WHERE id = " + id).executeQuery();
 			mem = new Member(tables.getInt("id"),tables.getDate("signupDate"),tables.getString("fname"),tables.getString("lname"),tables.getString("password"));
 			mem.loyaltyPoints = tables.getInt("points");
 		} catch (SQLException e) {

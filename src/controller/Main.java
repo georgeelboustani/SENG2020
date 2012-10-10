@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import database.Database;
@@ -14,14 +15,14 @@ import view.*;
 public class Main {
 	
 	private static int storeId = 1;
-	private static Employee currentEmployee = null;
-	private static Member currentMember = null;
+	public static Employee currentEmployee = null;
+	public static Member currentMember = null;
 	private static boolean activeUser = false;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		try {
 			PosSystem.initialise(new Database("user","pass"), storeId);
-		} catch (InvalidIdException e) {
+		} catch (InvalidIdException e) {	
 			System.err.println("Pos system failed to run. Invalid store id configuration.");
 		}
 		
@@ -43,6 +44,8 @@ public class Main {
 			} catch (CancelException e) {
 				
 			}
+			
+			PosSystem.refreshConnection();
 		}
 	}
 	

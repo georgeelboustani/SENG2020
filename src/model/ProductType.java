@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -18,68 +19,60 @@ public class ProductType {
 	/*
 	 * These should be populated when the system begins from the database
 	 */
-	private static ArrayList<String> productTypes = new ArrayList<String>();
-	private static ArrayList<String> productDescriptions = new ArrayList<String>();
-	
+
 	private int typeId;
+	private String name;
+	private String description;
 	
-	private ProductType(int i){
+	private ProductType(int i, String name, String description){
 		typeId = i;
+		this.name = name;
+		this.description = description;
 	}
 	
-	public static void addProductType(Database db, String type, String description) throws SQLException {
-		boolean typeExists = false;
-		
-		for (String productType: productTypes) {
-			if (type.equalsIgnoreCase(productType)) {
-				typeExists = true;
-			}
-		}
-		
-		if (!typeExists) {
-			productTypes.add(type);
-			productDescriptions.add(description);
+	public static void addProductType(String type, String description) throws SQLException {
+		try {	
+			String dbName = PosSystem.getDatabase().getDbName();
+			PreparedStatement stmt = null;
+			Connection con = PosSystem.getConnection();
 			
-			persist(db);
-		}
-	}
-	
-	private static void persist(Database db) throws SQLException {
-		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
-		
-		String query = "INSERT into " + db.getDbName() + ".producttype (`typeId`,`name`,`description`) " +
-				"VALUES (?,?,?)";
-    	
-		int index = productTypes.size() - 1;
-		
-    	stmt = con.prepareStatement(query);
-		stmt.setInt(1, index);
-		stmt.setString(2, productTypes.get(index));
-		stmt.setString(3, productDescriptions.get(index));
-		
-		db.executeQuery(stmt);
-		con.close();
-	}
-	
-	public static ProductType getProductType(String type) {
-		ProductType t = null;
-		
-		for (int i = 0; i < productTypes.size() && t == null; i++) {
-			if (productTypes.get(i).equalsIgnoreCase(type)) {
-				t = new ProductType(i);
+			if (getProductTypeByName(type) == null) {
+				String query = "INSERT INTO " + dbName + ".producttype " +
+						"(`typeId`,`name`,`description`) VALUES (?,?,?)";
+				
+		    	stmt = con.prepareStatement(query);
+		    	stmt.setInt(1, PosSystem.generateNextId(TableName.PRODUCTTYPE));
+				stmt.setString(2, type);
+				stmt.setString(3, description);
+								
+				PosSystem.getDatabase().executeQuery(stmt);
 			}
+			
+		} catch (Exception e) {
+			System.err.println("Failed to create product type. It already exists");
+		}
+	}
+	
+	public static ProductType getProductTypeByName(String name) {
+		ProductType type = null;
+		
+		try {
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.producttype WHERE name = '" + name + "'").executeQuery();
+			tables.next();
+			type = new ProductType(tables.getInt("typeId"),tables.getString("name"),tables.getString("description"));
+		} catch (SQLException e) {
+			return null;
 		}
 		
-		return t;
+		return type;
 	}
 	
 	public String getType() {
-		return productTypes.get(typeId);
+		return this.name;
 	}
 
 	public String getDescription() {
-		return productDescriptions.get(typeId);
+		return this.description;
 	}	
 	
 	public int getTypeId() {

@@ -7,7 +7,7 @@ public class testShelf {
 
 	@Test
 	public void constructor() {
-		Shelf testShelfObj = new Shelf(0,50);
+		Shelf testShelfObj = new Shelf(0,50,0);
 		
 		assert(testShelfObj.getCurrentAmount()==0);
 		assert(testShelfObj.getMaxProducts()==50);

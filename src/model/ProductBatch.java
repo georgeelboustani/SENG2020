@@ -1,6 +1,7 @@
 package model;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mysql.jdbc.Connection;
@@ -10,12 +11,12 @@ import database.Database;
 public class ProductBatch {
 	
 	private int batchId;
-	private ProductType type;
+	private String type;
 	private Date expiry;
 	private double price;
 	private int amount;
 		
-	public ProductBatch(int batchId, ProductType type, Date expiry, double price, int amount) {
+	public ProductBatch(int batchId, String type, Date expiry, double price, int amount) {
 		this.batchId = batchId;
 		this.type = type;
 		this.expiry = expiry;
@@ -23,9 +24,10 @@ public class ProductBatch {
 		this.amount = amount;
 	}
 
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".productbatch (`batchId`,`productType`,`expiry`,`price`,`amount`) " +
 				"VALUES (?,?,?,?,?)";
@@ -38,14 +40,14 @@ public class ProductBatch {
 		stmt.setInt(5, this.amount);
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
+	
 	
 	public int getBatchId() {
 		return this.batchId;
 	}
 
-	public ProductType getProductType() {
+	public String getProductType() {
 		return type;
 	}
 
@@ -69,8 +71,45 @@ public class ProductBatch {
 		return amount;
 	}
 
+
+	public void delete() {
+		Connection con = PosSystem.getConnection();
+		
+		try {
+			PreparedStatement stmt = null;
+
+			String query = "DELETE FROM " + PosSystem.getDatabase().getDbName() + ".productbatch " +
+					       "WHERE batchId = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setInt(1, this.batchId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+		} catch (Exception e) {
+			System.err.println("Failed to delete");
+		}
+
+	}
+	
 	public void setAmount(int amount) {
-		this.amount = amount;
+		Connection con = PosSystem.getConnection();
+		try {
+			PreparedStatement stmt = null;
+			
+			String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".productbatch " +
+					       "SET amount = ? " +
+					       "WHERE batchId = ?";
+			
+	    	stmt = con.prepareStatement(query);
+			stmt.setInt(1, amount);
+			stmt.setInt(2, this.batchId);
+
+			PosSystem.getDatabase().executeQuery(stmt);
+
+			this.amount = amount;
+		} catch (Exception e) {
+			System.err.println("Failed to set amount");
+		}
 	}
 
 	public boolean removeProducts(int amount) {
@@ -80,5 +119,23 @@ public class ProductBatch {
 		} else {
 			return false;
 		}
+	}
+	
+	public static ProductBatch getBatchById(int id) {
+		ProductBatch batch = null;
+		Connection con = PosSystem.getConnection();
+		try {
+			ResultSet tables = con.prepareStatement("SELECT * FROM seng2020.productbatch WHERE batchId = " + id).executeQuery();
+			tables.next();
+			batch = new ProductBatch(tables.getInt("batchId"),
+					                 tables.getString("productType"),
+					                 tables.getDate("expiry"),
+					                 tables.getDouble("price"),
+					                 tables.getInt("amount"));
+		} catch (SQLException e) {
+			return null;
+		}
+
+		return batch;
 	}
 }

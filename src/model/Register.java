@@ -22,9 +22,10 @@ public class Register {
 		logEntries = new ArrayList<LogEntry>();
 	}
 	
-	public void persist(Database db) throws SQLException {
+	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
-		Connection con = db.getConnection();
+		Database db = PosSystem.getDatabase();
+		Connection con = PosSystem.getConnection();
 		
 		String query = "INSERT into " + db.getDbName() + ".register (`registerId`,`balance`,`currentEmployee`) " +
 				"VALUES (?,?,?)";
@@ -40,7 +41,6 @@ public class Register {
 		}
 		
 		db.executeQuery(stmt);
-		con.close();
 	}
 	
 	public Employee activeEmployee() {

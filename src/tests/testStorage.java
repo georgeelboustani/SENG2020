@@ -11,7 +11,6 @@ public class testStorage {
 		
 		assert(testStorageObj.getId()==0);
 		assert(testStorageObj.getNumProducts()==0);
-		assert(testStorageObj.getRemainingSpace()==0);
 		assert(testStorageObj.getShelves().isEmpty());
 	}
 

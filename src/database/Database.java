@@ -1,6 +1,6 @@
 package database;
 
-import java.sql.Array;
+
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +12,8 @@ import java.util.Properties;
 import java.sql.DriverManager;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
+import model.PosSystem;
 
 import com.mysql.jdbc.Connection;
 
@@ -41,7 +43,7 @@ public class Database {
 	public void clearData() {
 		
 		try {
-			ResultSet tables = getConnection().prepareStatement("SELECT TABLE_NAME FROM (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'seng2020') AS a").executeQuery();
+			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT TABLE_NAME FROM (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'seng2020') AS a").executeQuery();
 			
 			ArrayList<String> tableNames = new ArrayList<String>();
 			while (tables.next()) {
@@ -51,7 +53,7 @@ public class Database {
 			int index = 0;
 			while (tableNames.size() > 0) {
 				try {
-					getConnection().prepareStatement("DELETE FROM seng2020." + tableNames.get(index)).execute();
+					PosSystem.getConnection().prepareStatement("DELETE FROM seng2020." + tableNames.get(index)).execute();
 					tableNames.remove(index);
 				} catch (SQLException e) {
 					// Who cares
@@ -75,7 +77,7 @@ public class Database {
 	 * @throws SQLException
 	 */
 	public void executeQuery(PreparedStatement query) throws SQLException {
-		Connection con = getConnection();
+		Connection con = PosSystem.getConnection();
 		con.setAutoCommit(false);
     	con.setTransactionIsolation(java.sql.Connection.TRANSACTION_READ_COMMITTED);
     	
@@ -85,10 +87,6 @@ public class Database {
 	    } catch (SQLException e) {
 	    	con.rollback();
 	    	printSQLException(e);
-	    } finally {
-	    	if (query != null) { 
-	    		query.close(); 
-	    	}
 	    }
 	}
 	
@@ -99,7 +97,7 @@ public class Database {
 	 * @throws SQLException 
 	 */
 	public void executeSelect(String query) throws SQLException {
-		Connection con = getConnection();
+		Connection con = PosSystem.getConnection();
 		Statement stmt = null;
 		
 		try {
@@ -109,14 +107,9 @@ public class Database {
 	        while (rs.next()) {
 	        	// Get the columns from the result set
 		        String product = rs.getString(1);
-		        System.out.println(product);
 	        }	      
 	    } catch (SQLException e) {
 	    	printSQLException(e);
-	    } finally {
-	      if (stmt != null) { 
-	    	  stmt.close(); 
-	      }
 	    }
 	}
 	
@@ -128,15 +121,11 @@ public class Database {
 		return db;
 	}
 	
-	public Connection getConnection(){
+	public Connection createConnection() throws SQLException{
 		Connection conn = null;
 		
-		try {
-			conn = (Connection)DriverManager.getConnection(server,connectionProps);
-			System.out.println("Connected to database");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		conn = (Connection)DriverManager.getConnection(server,connectionProps);
+		System.out.println("Connected to database");
 		
 		return conn;
 	}
