@@ -84,8 +84,12 @@ public class Main {
 		int id = CommandLine.getAnswerAsInt("Please enter your member id:");
 		
 		Member mem = Member.getMemberById(id);
-		while (mem == null) {
-			System.out.println("A member with id " + id + " does not exist, please type a valid id or cancel");
+		while (mem == null || !mem.getActiveStatus()) {
+			if (mem == null) {
+				System.out.println("A member with id " + id + " does not exist, please type a valid id");
+			} else {
+				System.out.println("The member account with id " + id + " has been disabled, enter an active account id or 'cancel'");
+			}
 			id = CommandLine.getAnswerAsInt("Please enter your member id:");
 			mem = Member.getMemberById(id);
 		}
@@ -108,8 +112,12 @@ public class Main {
 		int id = CommandLine.getAnswerAsInt("Please enter your employee id:");
 		Employee emp = Employee.getEmployeeById(id);
 		
-		while (emp == null) {
-			System.out.println("An employee with id " + id + " does not exist, please type a valid id or cancel");
+		while (emp == null || !emp.getActiveStatus()) {
+			if (emp == null) {
+				System.out.println("An employee with id " + id + " does not exist, please type a valid id");
+			} else {
+				System.out.println("The employee account with id " + id + " has been disabled, enter an active account id or 'cancel'");
+			}
 			id = CommandLine.getAnswerAsInt("Id:");
 			emp = Employee.getEmployeeById(id);
 		}
@@ -138,5 +146,9 @@ public class Main {
 		}
 		
 		return false;
+	}
+	
+	public static boolean hasActiveUser() {
+		return activeUser;
 	}
 }

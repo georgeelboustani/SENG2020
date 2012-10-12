@@ -30,7 +30,7 @@ public class ProductType {
 		this.description = description;
 	}
 	
-	public static void addProductType(String type, String description) throws SQLException {
+	public static void addProductType(String type, String description, int categoryId) throws SQLException {
 		try {	
 			String dbName = PosSystem.getDatabase().getDbName();
 			PreparedStatement stmt = null;
@@ -38,12 +38,13 @@ public class ProductType {
 			
 			if (getProductTypeByName(type) == null) {
 				String query = "INSERT INTO " + dbName + ".producttype " +
-						"(`typeId`,`name`,`description`) VALUES (?,?,?)";
+						"(`typeId`,`name`,`description`,`categoryId`) VALUES (?,?,?,?)";
 				
 		    	stmt = con.prepareStatement(query);
 		    	stmt.setInt(1, PosSystem.generateNextId(TableName.PRODUCTTYPE));
 				stmt.setString(2, type);
 				stmt.setString(3, description);
+				stmt.setInt(4, categoryId);
 								
 				PosSystem.getDatabase().executeQuery(stmt);
 			}
