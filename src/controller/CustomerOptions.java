@@ -2,6 +2,9 @@ package controller;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.commons.lang3.StringUtils;
 
 import database.Database;
 
@@ -10,6 +13,7 @@ import model.EmployeeType;
 import model.Member;
 import model.PosSystem;
 import model.ProductBatch;
+import model.ProductCategory;
 import model.ProductType;
 import model.Shelf;
 import model.Storage;
@@ -25,15 +29,15 @@ public class CustomerOptions {
 	public static void performCustomerOptions(boolean isMember) throws CancelException {	
 		ArrayList<String> questions = new ArrayList<String>();
 		
-		if( isMember ){
+		if(isMember){
 			questions.add("Check loyalty points balance");
 			questions.add("Change details");
 			questions.add("Close membership");
-			questions.add("Check product catalogue");
+			questions.add("Query Products");
 			questions.add("Log out");
 		} else {
 			questions.add("Become a member");
-			questions.add("Check product catalogue");
+			questions.add("Query Products");
 		}
 		
 		int option = CommandLine.getUserOption(questions);
@@ -96,8 +100,8 @@ public class CustomerOptions {
 				break;
 			case "Query Products":
 				newQuestions.add("Search All");
-				newQuestions.add("Search by name");
-				newQuestions.add("List by category");
+				newQuestions.add("Search by Name");
+				newQuestions.add("List by Category");
 				break;
 			case "Log out":
 				Main.requestLogout();
@@ -139,18 +143,37 @@ public class CustomerOptions {
 					mem.setPassword(pass);
 					break;
 				case "Search All":
-					
+					HashMap<String,Integer> products = Storage.getProductInfo();
+					for (String key: products.keySet()){
+						System.out.println(StringUtils.capitalize(key) + ": " + products.get(key));
+					}
 					break;
 				case "Search by Name":
-					
+					String name = CommandLine.getAnswerAsString("Name: ");
+					HashMap<String,Integer> allProducts = Storage.getProductInfo();
+					for (String key: allProducts.keySet()){
+						if(key.toLowerCase().contains(name.toLowerCase())){
+							System.out.println(StringUtils.capitalize(key) + ": " + allProducts.get(key));
+							System.out.println(ProductType.getProductTypeByName(key).getDescription());
+						}
+					}
 					break;
 				case "List by Category":
+					String categoryName = CommandLine.getAnswerAsString("Enter a category name:").toLowerCase();
 					
+					HashMap<String,Integer> products1 = Storage.getProductInfo();
+					for (String key: products1.keySet()){
+						if (ProductType.getProductTypeByName(key).getCategoryName().toLowerCase().contains(categoryName)) {
+							System.out.println("(" + ProductType.getProductTypeByName(key).getCategoryName() + ") " + StringUtils.capitalize(key) + ": " + products1.get(key));
+						}
+					}
 					break;
 			}
 		} catch (CancelException e) {
 			System.out.println("Cancelled out of level two");
 			throw e;
 		}
+		
+		throw new CancelException();
 	}
 }

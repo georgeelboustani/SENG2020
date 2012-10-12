@@ -2,6 +2,7 @@ package model;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.mysql.jdbc.Connection;
 
@@ -57,5 +58,20 @@ public class ProductCategory {
 		}
 		
 		return category;
+	}
+
+	public static ProductCategory getProductCategoryById(int id) {
+		ProductCategory cat = null;
+		Connection con = PosSystem.getConnection();
+		try {
+			ResultSet tables = con.prepareStatement("SELECT * FROM seng2020.productcategory WHERE categoryId = " + id).executeQuery();
+			tables.next();
+			cat = new ProductCategory(id,tables.getString("categoryName"));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return cat;
 	}
 }

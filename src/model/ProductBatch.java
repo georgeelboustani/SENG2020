@@ -133,6 +133,7 @@ public class ProductBatch {
 					                 tables.getDouble("price"),
 					                 tables.getInt("amount"));
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return null;
 		}
 

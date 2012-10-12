@@ -11,7 +11,13 @@ import controller.DataValidator;
 import exception.CancelException;
 
 public class CommandLine {
-
+	
+	public static void printList(ArrayList<String> list) {
+		for (String item: list) {
+			System.out.println(item);
+		}
+	}
+	
 	public static int getAnswerAsInt(String question) throws CancelException {
 		int answer  = 0;
 		System.out.print(question + " ");

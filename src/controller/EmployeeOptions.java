@@ -113,6 +113,8 @@ public class EmployeeOptions {
 		}
 	}
 
+	//TODO - ASK FOR REGID
+	//TODO - add details to register table for staff login to register
 	private static void employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) throws CancelException {
 		String question = questions.get(option - 1);
 		
@@ -194,6 +196,7 @@ public class EmployeeOptions {
 					//TODO: HARD
 				case "Order products":
 					System.err.println("Unimplemented function");
+					
 					break;
 					//TODO: MEDIUM
 				case "Receive Order":
@@ -262,13 +265,14 @@ public class EmployeeOptions {
 				case "Sell product(Cash)":
 					handleSale();
 					break;
-
 				case "Sell product(Card)":
 					handleSale();
-					// TODO - ask for credit card info
+					// TODO - do CREDIT CARD
+					CommandLine.getAnswerAsString("Please input credit card number");
 					break;
 					//TODO: HARD
 				case "Return product":
+					// TODO - finish this
 					// Get batch id and sale id.
 					// Return is valid if batch id is linked to sale id in salebatches
 					System.err.println("Unimplemented function");
@@ -286,9 +290,11 @@ public class EmployeeOptions {
 					Main.currentEmployee.setPassword(password);
 					break;
 				case "Report Employees":
+					// TODO - report employees
 					System.err.println("Unimplemented function");
 					break;
 				case "Report Products":
+					// TODO - report products
 					System.err.println("Unimplemented function");
 					break;
 				case "Cancel":

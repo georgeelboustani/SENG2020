@@ -40,21 +40,13 @@ public class Shelf {
 	
 	// TODO - save category in system
 	public void assignCategory(ProductCategory category) {
-//		if (!categories.contains(category)) {
-//			categories.add(category);
-//		}
-	}
-	
-	// TODO - set int database
-	public void removeCategory(ProductCategory category) {
-		//categories.remove(category);
+		
 	}
 	
 	public int getShelfId() {
 		return id;
 	}
 	
-	//TODO: CHANGE GETTERS TO GET FROM DB
 	public int getMaxProducts() {
 		return maxProducts;
 	}
@@ -145,6 +137,7 @@ public class Shelf {
 			shelfId.next();
 			shelfId.getString("shelfId");
 		}catch(SQLException e){
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -167,6 +160,7 @@ public class Shelf {
 			shelfSet.next();
 			shelfSet.getString("shelfId");
 		}catch(SQLException e){
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -197,7 +191,48 @@ public class Shelf {
 		}catch(SQLException e){
 			return false;
 		}
+		
 		return true;
+	}
+	
+	public static ArrayList<Integer> getShelvesFromStorage(int storageId) {
+		ArrayList<Integer> shelves = new ArrayList<Integer>();
+		
+		try {
+			String query = "SELECT shelfId FROM seng2020.storageshelf WHERE storageId = ?";
+			PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+			stmt.setInt(1, storageId);
+			
+			ResultSet tables = stmt.executeQuery();
+			while(tables.next()) {
+				shelves.add(new Integer(tables.getInt("shelfId")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return shelves;
+	}
+	
+	public static ArrayList<Integer> getProductsFromShelf(int shelfId) {
+		ArrayList<Integer> batches = new ArrayList<Integer>();
+		
+		try {
+			String query = "SELECT batchId FROM seng2020.shelfbatch WHERE shelfId = ?";
+			PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+			stmt.setInt(1, shelfId);
+			
+			ResultSet tables = stmt.executeQuery();
+			while(tables.next()) {
+				batches.add(new Integer(tables.getInt("batchId")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return batches;
 	}
 	
 	public static Shelf getShelfById(int id) {
@@ -208,6 +243,7 @@ public class Shelf {
 			tables.next();
 			shelf = new Shelf(tables.getInt("shelfId"),tables.getInt("maxProducts"),tables.getInt("currentAmount"));
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return null;
 		}
 		
