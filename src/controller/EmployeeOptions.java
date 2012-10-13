@@ -14,6 +14,7 @@ import model.EmployeeType;
 import model.Member;
 import model.PosSystem;
 import model.ProductBatch;
+import model.ProductCategory;
 import model.ProductType;
 import model.Sale;
 import model.Shelf;
@@ -42,6 +43,7 @@ public class EmployeeOptions {
 		questions.add("Sell product");
 		questions.add("Return product");
 		questions.add("Change details");
+		questions.add("Reporting");
 		questions.add("Log out");
 		
 		int option = CommandLine.getUserOption(questions);
@@ -78,6 +80,7 @@ public class EmployeeOptions {
 				newQuestions.add("Order products");
 				newQuestions.add("Receive Order");
 				newQuestions.add("Add product to system");
+				newQuestions.add("Add category to system");
 				newQuestions.add("Transfer products");
 				break;
 			case "Sell product":
@@ -91,6 +94,10 @@ public class EmployeeOptions {
 				newQuestions.add("Change First Name");
 				newQuestions.add("Change Last Name");
 				newQuestions.add("Change Password");
+				break;
+			case "Reporting":
+				newQuestions.add("Report Employees");
+				newQuestions.add("Report Products");
 				break;
 			case "Log out":
 				Main.requestLogout();
@@ -106,6 +113,8 @@ public class EmployeeOptions {
 		}
 	}
 
+	//TODO - ASK FOR REGID
+	//TODO - add details to register table for staff login to register
 	private static void employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) throws CancelException {
 		String question = questions.get(option - 1);
 		
@@ -187,6 +196,7 @@ public class EmployeeOptions {
 					//TODO: HARD
 				case "Order products":
 					System.err.println("Unimplemented function");
+					
 					break;
 					//TODO: MEDIUM
 				case "Receive Order":
@@ -197,9 +207,33 @@ public class EmployeeOptions {
 					String productName = CommandLine.getAnswerAsString("Product Name:");
 					String productDescription = CommandLine.getAnswerAsString("Product Description:");
 					
-					ProductType.addProductType(productName, productDescription);
+					// TODO - print a list of the valid categories
+					String productCategory = CommandLine.getAnswerAsString("Product Category:");
+					ProductCategory category = ProductCategory.getProductCategoryByName(productCategory);
+					while (category == null) {
+						productCategory = CommandLine.getAnswerAsString("Please enter a valid category name:");
+						category = ProductCategory.getProductCategoryByName(productCategory);
+					}
+					
+					ProductType.addProductType(productName, productDescription,category.getCategoryId());
 					break;
-
+				
+				case "Add category to system":
+					String categoryName = CommandLine.getAnswerAsString("Category Name:");
+					
+					ProductCategory category1 = ProductCategory.getProductCategoryByName(categoryName);
+					while (category1 != null) {
+						if (CommandLine.getYesOrNo("Category already exists, would you like to add another category?")) {
+							categoryName = CommandLine.getAnswerAsString("Category Name:");
+							category1 = ProductCategory.getProductCategoryByName(categoryName);
+						} else {
+							throw new CancelException();
+						}
+					}
+					
+					ProductCategory.addProductCategory(PosSystem.generateNextId(TableName.PRODUCTCATEGORY),categoryName);
+					break;
+					
 				case "Transfer products":
 					int fromShelfId = CommandLine.getAnswerAsInt("From shelf id:");
 					while( Shelf.getShelfById(fromShelfId) == null){
@@ -231,13 +265,16 @@ public class EmployeeOptions {
 				case "Sell product(Cash)":
 					handleSale();
 					break;
-
 				case "Sell product(Card)":
 					handleSale();
-					// TODO - ask for credit card info
+					// TODO - do CREDIT CARD
+					CommandLine.getAnswerAsString("Please input credit card number");
 					break;
 					//TODO: HARD
 				case "Return product":
+					// TODO - finish this
+					// Get batch id and sale id.
+					// Return is valid if batch id is linked to sale id in salebatches
 					System.err.println("Unimplemented function");
 					break;
 				case "Change First Name":
@@ -251,6 +288,14 @@ public class EmployeeOptions {
 				case "Change Password":
 					password = CommandLine.getAnswerAsString("New Password: ");
 					Main.currentEmployee.setPassword(password);
+					break;
+				case "Report Employees":
+					// TODO - report employees
+					System.err.println("Unimplemented function");
+					break;
+				case "Report Products":
+					// TODO - report products
+					System.err.println("Unimplemented function");
 					break;
 				case "Cancel":
 					throw new CancelException();

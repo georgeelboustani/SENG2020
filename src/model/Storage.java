@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mysql.jdbc.Connection;
 
 import database.Database;
@@ -108,6 +110,70 @@ public class Storage {
 		}
 	}
 	
+	public static ArrayList<ProductBatch> getProductBatchesInStorageTypeFromStore(StorageType type) {
+		ArrayList<ProductBatch> products = new ArrayList<ProductBatch>();
+		
+		ArrayList<Integer> storages = getStorageFromStore(type);
+		ArrayList<Integer> shelves = new ArrayList<Integer>();
+		for (Integer id: storages) {
+			for (Integer shelfId: Shelf.getShelvesFromStorage(id)) {
+				shelves.add(shelfId);
+			}
+		}
+		
+		// Get all the product batches from the shelves
+		for (Integer id: shelves) {
+			for (Integer batchId: Shelf.getProductsFromShelf(id)) {
+				products.add(ProductBatch.getBatchById(batchId));
+			}
+		}
+		
+		return products;
+	}
+	
+	//TODO threshold management
+	
+	/**
+	 * @return hash map of product type to amount available on the floor
+	 */
+	public static HashMap<String, Integer> getProductInfo() {
+		HashMap<String, Integer> products = new HashMap<String, Integer>();
+		for (String type: ProductType.getAllAvailableProductTypes()) {
+			products.put(type, 0);
+		}
+		
+		ArrayList<ProductBatch> batches = getProductBatchesInStorageTypeFromStore(StorageType.FLOOR);
+		for (ProductBatch batch: batches) {
+			//TODO: Fix product type id/name confusion up
+			String key = ProductType.getProductTypeById(Integer.parseInt(batch.getProductType())).getType();
+			products.put(key, products.get(key) + batch.getAmount());
+		}
+		
+		return products;
+	}
+	
+	public static ArrayList<Integer> getStorageFromStore(StorageType type) {
+		ArrayList<Integer> storages = new ArrayList<Integer>();
+		
+		try {
+			String query = "SELECT DISTINCT storestorage.storageId FROM seng2020.storestorage, seng2020.storage " +
+					       "WHERE storestorage.storeId = ? AND storage.type = ?";
+			PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+			stmt.setInt(1, PosSystem.getStoreId());
+			stmt.setString(2, type.toString());
+			
+			ResultSet tables = stmt.executeQuery();
+			while(tables.next()) {
+				storages.add(tables.getInt(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return storages;
+	}
+	
 	public static Storage getStorageById(int id) {
 		Storage storage = null;
 		
@@ -116,6 +182,7 @@ public class Storage {
 			tables.next();
 			storage = new Storage(tables.getInt("id"),StorageType.valueOf(tables.getString("type")));
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return null;
 		}
 		

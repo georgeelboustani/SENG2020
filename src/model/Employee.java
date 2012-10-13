@@ -68,6 +68,10 @@ public class Employee {
 		return this.type;	
 	}
 	
+	public boolean getActiveStatus() {
+		return this.activeStatus;
+	}
+	
 	public void setType(EmployeeType type) {
 		Connection con = PosSystem.getConnection();
 		
@@ -126,7 +130,6 @@ public class Employee {
 			stmt.setInt(2, this.employeeId);
 
 			PosSystem.getDatabase().executeQuery(stmt);
-			con.close();
 			this.firstName = firstName;
 		} catch (Exception e) {
 			System.err.println("Failed to set firstname");
@@ -187,6 +190,7 @@ public class Employee {
 			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.employee WHERE id = " + id).executeQuery();
 			tables.next();
 			emp = new Employee(tables.getInt("id"),tables.getString("fname"),tables.getString("lname"),EmployeeType.valueOf(tables.getString("employeeType")),tables.getString("password"));
+			emp.activeStatus = tables.getBoolean("active");
 		} catch (SQLException e) {
 			return null;
 		}

@@ -56,9 +56,10 @@ public class Store {
 		persistEmployeeMapping(emp);
 	}
 	
-	public void addMember(String firstName, String lastName, String password, Date signup) throws SQLException {
+	public Member addMember(String firstName, String lastName, String password, Date signup) throws SQLException {
 		Member mem = new Member(PosSystem.generateNextId(TableName.MEMBER), signup,firstName,lastName,password);
 		mem.persist();		
+		return mem;
 	}
 	
 	public void addRegister() throws SQLException {
