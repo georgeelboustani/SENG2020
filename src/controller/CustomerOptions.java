@@ -28,8 +28,8 @@ import view.CommandLine;
 public class CustomerOptions {
 	public static void performCustomerOptions(boolean isMember) throws CancelException {	
 		ArrayList<String> questions = new ArrayList<String>();
-		
-		if(isMember){
+
+		if (isMember){
 			questions.add("Check loyalty points balance");
 			questions.add("Change details");
 			questions.add("Close membership");
@@ -39,11 +39,11 @@ public class CustomerOptions {
 			questions.add("Become a member");
 			questions.add("Query Products");
 		}
-		
+
 		int option = CommandLine.getUserOption(questions);
-		
+
 		try {
-			customerQuestionHandlerLevelOne(questions,option);
+			customerQuestionHandlerLevelOne(questions, option);
 		} catch (CancelException e){
 			
 		} catch (LogoutException e) {

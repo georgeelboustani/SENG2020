@@ -9,6 +9,7 @@ import com.mysql.jdbc.Connection;
 
 import database.Database;
 import exception.InvalidIdException;
+import org.apache.commons.lang3.*;
 
 public class PosSystem {
 	
@@ -31,6 +32,7 @@ public class PosSystem {
 			initialisationSuccessful = true;
 		}
 	}
+	
 	
 	public static int addStore() throws SQLException {
 		Store newStore = new Store(PosSystem.generateNextId(TableName.STORE));

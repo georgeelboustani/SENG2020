@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -12,6 +13,7 @@ import exception.LogoutException;
 import model.Employee;
 import model.EmployeeType;
 import model.Member;
+import model.Order;
 import model.PosSystem;
 import model.ProductBatch;
 import model.ProductCategory;
@@ -20,6 +22,7 @@ import model.Sale;
 import model.Shelf;
 import model.Storage;
 import model.Store;
+import model.Supplier;
 import model.TableName;
 import model.Trolley;
 import view.CommandLine;
@@ -32,6 +35,7 @@ public class EmployeeOptions {
 			case ADMIN:
 				questions.add("Manage users");
 				questions.add("Manage products");
+				questions.add("Manage Storage");
 				break;
 			case MANAGER:
 				questions.add("Manage products");
@@ -83,6 +87,12 @@ public class EmployeeOptions {
 				newQuestions.add("Add category to system");
 				newQuestions.add("Transfer products");
 				break;
+			case "Manage Storage":
+				newQuestions.add("Add supplier");
+				newQuestions.add("Remove supplier");
+				newQuestions.add("Add Warehouse");
+				// TODO - add space to storage locations
+				break;
 			case "Sell product":
 				newQuestions.add("Sell product(Cash)");
 				newQuestions.add("Sell product(Card)");
@@ -115,6 +125,7 @@ public class EmployeeOptions {
 
 	//TODO - ASK FOR REGID
 	//TODO - add details to register table for staff login to register
+	@SuppressWarnings({ "deprecation"})
 	private static void employeeQuestionHandlerLevelTwo(ArrayList<String> questions, int option) throws CancelException {
 		String question = questions.get(option - 1);
 		
@@ -162,7 +173,6 @@ public class EmployeeOptions {
 				case "Enable employee":
 					empId = CommandLine.getAnswerAsInt("Employee Id: ");
 					s.setEmployeeStatus(empId, true);
-				    
 					break;
 				case "Add member":
 					fname = CommandLine.getAnswerAsString("First Name: ");
@@ -195,7 +205,23 @@ public class EmployeeOptions {
 					break;
 					//TODO: HARD
 				case "Order products":
-					System.err.println("Unimplemented function");
+					int orderId = PosSystem.generateNextId(TableName.ORDER);
+					Date orderArrival = new java.sql.Date(0);
+					
+					System.out.println("The following 3 questions will gather the date of arrival");
+					orderArrival.setDate(CommandLine.getAnswerAsInt("Day of arrival:"));
+					orderArrival.setMonth(CommandLine.getAnswerAsInt("Month of arrival:"));
+					orderArrival.setYear(CommandLine.getAnswerAsInt("year of arrival:"));
+					
+					Date receivedDate = null;
+					int productTypeId2 = ProductType.getProductTypeByName(ProductType.getAllAvailableProductTypes().get(CommandLine.getUserOption(ProductType.getAllAvailableProductTypes()) - 1)).getTypeId();
+					int quantity = CommandLine.getAnswerAsInt("Quantity ordered:");
+					
+					// TODO - validate supplier id
+					int supplierId = CommandLine.getAnswerAsInt("Supplier Id:");
+					
+					Order newOrder = new Order(orderId,orderArrival,receivedDate,productTypeId2,quantity,supplierId);
+					newOrder.persist();
 					
 					break;
 					//TODO: MEDIUM
@@ -288,6 +314,18 @@ public class EmployeeOptions {
 				case "Change Password":
 					password = CommandLine.getAnswerAsString("New Password: ");
 					Main.currentEmployee.setPassword(password);
+					break;
+				case "Add supplier":
+					// TODO - Add supplier
+					System.err.println("Unimplemented function");
+					break;
+				case "Remove supplier":
+					// TODO - Remove supplier
+					System.err.println("Unimplemented function");
+					break;
+				case "Add Warehouse":
+					// TODO - Add Warehouse
+					System.err.println("Unimplemented function");
 					break;
 				case "Report Employees":
 					// TODO - report employees
