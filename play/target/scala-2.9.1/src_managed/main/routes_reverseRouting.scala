@@ -1,6 +1,6 @@
-// @SOURCE:/home/daniel/todolist1/todolist/conf/routes
-// @HASH:52bc6a7c64b62015337c98cdb45b9fa139b8770a
-// @DATE:Wed Oct 10 01:32:57 EST 2012
+// @SOURCE:/home/daniel/testingPlay/conf/routes
+// @HASH:64e0d8ed86b1900f9fd2ae4ac532028587fc4ae7
+// @DATE:Sat Oct 13 18:22:59 EST 2012
 
 import play.core._
 import play.core.Router._
@@ -12,15 +12,11 @@ import play.libs.F
 import Router.queryString
 
 
-// @LINE:14
-// @LINE:11
-// @LINE:10
+// @LINE:13
 // @LINE:9
 // @LINE:6
 package controllers {
 
-// @LINE:11
-// @LINE:10
 // @LINE:9
 // @LINE:6
 class ReverseApplication {
@@ -34,21 +30,9 @@ def tasks() = {
 }
                                                         
  
-// @LINE:11
-def deleteTask(id:Long) = {
-   Call("POST", "/tasks/" + implicitly[PathBindable[Long]].unbind("id", id) + "/delete")
-}
-                                                        
- 
 // @LINE:6
 def index() = {
    Call("GET", "/")
-}
-                                                        
- 
-// @LINE:10
-def newTask() = {
-   Call("POST", "/tasks")
 }
                                                         
 
@@ -57,13 +41,13 @@ def newTask() = {
 }
                             
 
-// @LINE:14
+// @LINE:13
 class ReverseAssets {
     
 
 
  
-// @LINE:14
+// @LINE:13
 def at(file:String) = {
    Call("GET", "/assets/" + implicitly[PathBindable[String]].unbind("file", file))
 }
@@ -77,15 +61,11 @@ def at(file:String) = {
                     
 
 
-// @LINE:14
-// @LINE:11
-// @LINE:10
+// @LINE:13
 // @LINE:9
 // @LINE:6
 package controllers.javascript {
 
-// @LINE:11
-// @LINE:10
 // @LINE:9
 // @LINE:6
 class ReverseApplication {
@@ -104,17 +84,6 @@ def tasks = JavascriptReverseRoute(
 )
                                                         
  
-// @LINE:11
-def deleteTask = JavascriptReverseRoute(
-   "controllers.Application.deleteTask",
-   """
-      function(id) {
-      return _wA({method:"POST", url:"/tasks/" + (""" + implicitly[PathBindable[Long]].javascriptUnbind + """)("id", id) + "/delete"})
-      }
-   """
-)
-                                                        
- 
 // @LINE:6
 def index = JavascriptReverseRoute(
    "controllers.Application.index",
@@ -125,30 +94,19 @@ def index = JavascriptReverseRoute(
    """
 )
                                                         
- 
-// @LINE:10
-def newTask = JavascriptReverseRoute(
-   "controllers.Application.newTask",
-   """
-      function() {
-      return _wA({method:"POST", url:"/tasks"})
-      }
-   """
-)
-                                                        
 
                       
     
 }
                             
 
-// @LINE:14
+// @LINE:13
 class ReverseAssets {
     
 
 
  
-// @LINE:14
+// @LINE:13
 def at = JavascriptReverseRoute(
    "controllers.Assets.at",
    """
@@ -167,15 +125,11 @@ def at = JavascriptReverseRoute(
                     
 
 
-// @LINE:14
-// @LINE:11
-// @LINE:10
+// @LINE:13
 // @LINE:9
 // @LINE:6
 package controllers.ref {
 
-// @LINE:11
-// @LINE:10
 // @LINE:9
 // @LINE:6
 class ReverseApplication {
@@ -189,21 +143,9 @@ def tasks() = new play.api.mvc.HandlerRef(
 )
                               
  
-// @LINE:11
-def deleteTask(id:Long) = new play.api.mvc.HandlerRef(
-   controllers.Application.deleteTask(id), HandlerDef(this, "controllers.Application", "deleteTask", Seq(classOf[Long]))
-)
-                              
- 
 // @LINE:6
 def index() = new play.api.mvc.HandlerRef(
    controllers.Application.index(), HandlerDef(this, "controllers.Application", "index", Seq())
-)
-                              
- 
-// @LINE:10
-def newTask() = new play.api.mvc.HandlerRef(
-   controllers.Application.newTask(), HandlerDef(this, "controllers.Application", "newTask", Seq())
 )
                               
 
@@ -212,13 +154,13 @@ def newTask() = new play.api.mvc.HandlerRef(
 }
                             
 
-// @LINE:14
+// @LINE:13
 class ReverseAssets {
     
 
 
  
-// @LINE:14
+// @LINE:13
 def at(path:String, file:String) = new play.api.mvc.HandlerRef(
    controllers.Assets.at(path, file), HandlerDef(this, "controllers.Assets", "at", Seq(classOf[String], classOf[String]))
 )

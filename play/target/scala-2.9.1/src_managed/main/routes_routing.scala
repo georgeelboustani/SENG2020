@@ -1,6 +1,6 @@
-// @SOURCE:/home/daniel/todolist1/todolist/conf/routes
-// @HASH:52bc6a7c64b62015337c98cdb45b9fa139b8770a
-// @DATE:Wed Oct 10 01:32:57 EST 2012
+// @SOURCE:/home/daniel/testingPlay/conf/routes
+// @HASH:64e0d8ed86b1900f9fd2ae4ac532028587fc4ae7
+// @DATE:Sat Oct 13 18:22:59 EST 2012
 
 import play.core._
 import play.core.Router._
@@ -22,18 +22,10 @@ val controllers_Application_index0 = Route("GET", PathPattern(List(StaticPart("/
 val controllers_Application_tasks1 = Route("GET", PathPattern(List(StaticPart("/tasks"))))
                     
 
-// @LINE:10
-val controllers_Application_newTask2 = Route("POST", PathPattern(List(StaticPart("/tasks"))))
+// @LINE:13
+val controllers_Assets_at2 = Route("GET", PathPattern(List(StaticPart("/assets/"),DynamicPart("file", """.+"""))))
                     
-
-// @LINE:11
-val controllers_Application_deleteTask3 = Route("POST", PathPattern(List(StaticPart("/tasks/"),DynamicPart("id", """[^/]+"""),StaticPart("/delete"))))
-                    
-
-// @LINE:14
-val controllers_Assets_at4 = Route("GET", PathPattern(List(StaticPart("/assets/"),DynamicPart("file", """.+"""))))
-                    
-def documentation = List(("""GET""","""/""","""controllers.Application.index()"""),("""GET""","""/tasks""","""controllers.Application.tasks()"""),("""POST""","""/tasks""","""controllers.Application.newTask()"""),("""POST""","""/tasks/$id<[^/]+>/delete""","""controllers.Application.deleteTask(id:Long)"""),("""GET""","""/assets/$file<.+>""","""controllers.Assets.at(path:String = "/public", file:String)"""))
+def documentation = List(("""GET""","""/""","""controllers.Application.index()"""),("""GET""","""/tasks""","""controllers.Application.tasks()"""),("""GET""","""/assets/$file<.+>""","""controllers.Assets.at(path:String = "/public", file:String)"""))
              
     
 def routes:PartialFunction[RequestHeader,Handler] = {        
@@ -54,24 +46,8 @@ case controllers_Application_tasks1(params) => {
 }
                     
 
-// @LINE:10
-case controllers_Application_newTask2(params) => {
-   call { 
-        invokeHandler(_root_.controllers.Application.newTask(), HandlerDef(this, "controllers.Application", "newTask", Nil))
-   }
-}
-                    
-
-// @LINE:11
-case controllers_Application_deleteTask3(params) => {
-   call(params.fromPath[Long]("id", None)) { (id) =>
-        invokeHandler(_root_.controllers.Application.deleteTask(id), HandlerDef(this, "controllers.Application", "deleteTask", Seq(classOf[Long])))
-   }
-}
-                    
-
-// @LINE:14
-case controllers_Assets_at4(params) => {
+// @LINE:13
+case controllers_Assets_at2(params) => {
    call(Param[String]("path", Right("/public")), params.fromPath[String]("file", None)) { (path, file) =>
         invokeHandler(_root_.controllers.Assets.at(path, file), HandlerDef(this, "controllers.Assets", "at", Seq(classOf[String], classOf[String])))
    }

@@ -4,3 +4,11 @@ run
 exit
 eclipsify
 exit
+run
+exit
+run
+clean
+compile
+run
+compile
+run
