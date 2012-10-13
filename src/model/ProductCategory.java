@@ -6,6 +6,8 @@ import java.sql.SQLException;
 
 import com.mysql.jdbc.Connection;
 
+import database.Database;
+
 public class ProductCategory {
 	
 	private int categoryId;
@@ -41,6 +43,7 @@ public class ProductCategory {
 				PosSystem.getDatabase().executeQuery(stmt);
 			}
 		} catch (Exception e) {
+		    Database.printStackTrace(e);
 			System.err.println("Failed to create product type. It already exists");
 		}
 	}
@@ -54,6 +57,7 @@ public class ProductCategory {
 			tables.next();
 			category = new ProductCategory(tables.getInt("categoryId"),tables.getString("categoryName"));
 		} catch (Exception e) {
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -68,7 +72,7 @@ public class ProductCategory {
 			tables.next();
 			cat = new ProductCategory(id,tables.getString("categoryName"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 

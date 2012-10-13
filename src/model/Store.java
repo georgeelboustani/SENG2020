@@ -20,6 +20,8 @@ public class Store {
 	private Storage floorspace;
 	private Storage backroom;
 	private Storage warehouse;
+	private Storage returnsdepot;
+	  private Storage orderdepot;
 	private ArrayList<Sale> sales;
 	
 	public Store(int id) {
@@ -30,6 +32,8 @@ public class Store {
 		floorspace = new Storage(0,StorageType.FLOOR);
 		backroom = new Storage(1,StorageType.BACKROOM);
 		warehouse = new Storage(2,StorageType.WAREHOUSE);
+		returnsdepot = new Storage(3,StorageType.RETURNSDEPOT);
+		orderdepot = new Storage(4,StorageType.ORDERSDEPOT);
 	}
 	
 	public void persist() throws SQLException {
@@ -48,6 +52,8 @@ public class Store {
 		persistStorageMapping(floorspace);
 		persistStorageMapping(backroom);
 		persistStorageMapping(warehouse);
+	    persistStorageMapping(returnsdepot);
+	    persistStorageMapping(orderdepot);
 	}
 	
 	public void addEmployee(String firstName, String lastName, EmployeeType type,  String password) throws SQLException {

@@ -23,7 +23,7 @@ public class testDatabase {
 			
 		//TODO: Persist test doesn't actually throw - fix test
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class testDatabase {
 			testLog.persist();
 			//TODO: Persist test doesn't actually throw - fix test
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 		}
 		
 		System.out.println("LOG ENTRYYYY");

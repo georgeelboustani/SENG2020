@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import com.mysql.jdbc.Connection;
 
+import database.Database;
+
 
 /**
  * Actual products such as milk, bread, chocolate
@@ -51,6 +53,7 @@ public class ProductType {
 			}
 			
 		} catch (Exception e) {
+		    Database.printStackTrace(e);
 			System.err.println("Failed to create product type. It already exists");
 		}
 	}
@@ -70,6 +73,7 @@ public class ProductType {
 				types.add(type.name);
 			}
 		} catch (SQLException e) {
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -84,6 +88,7 @@ public class ProductType {
 			tables.next();
 			type = new ProductType(tables.getInt("typeId"),tables.getString("name"),tables.getString("description"),tables.getInt("categoryId"));
 		} catch (SQLException e) {
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -98,7 +103,7 @@ public class ProductType {
 			tables.next();
 			type = new ProductType(id,tables.getString(2),tables.getString(3),tables.getInt("categoryId"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		

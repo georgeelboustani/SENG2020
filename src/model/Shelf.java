@@ -15,6 +15,7 @@ public class Shelf {
 	private int maxProducts;
 	private int currentAmount;
 
+	//TODO make sure that when adding to shelf, current amount increases and never exceeds storage/shelf max
 	public Shelf(int id, int maxProducts,int currentAmount) {
 		super();
 		this.id = id;
@@ -98,23 +99,29 @@ public class Shelf {
 		
 	}
 	
-	// TODO - increase current amount in shelf
 	public static void addToShelf(int shelfId, ProductBatch batch) throws SQLException {
 		Connection con = PosSystem.getConnection();
 		
 		ResultSet batchId = con.prepareStatement("SELECT batchId FROM seng2020.shelfbatch WHERE shelfId = " + shelfId).executeQuery();
 		ProductBatch currentBatch = null;
-		
+		boolean found = false;
 		while (batchId.next()){
 			currentBatch = ProductBatch.getBatchById(batchId.getInt("batchId"));
 			
 			if(currentBatch.getProductType().equals(batch.getProductType()) && 
 			   currentBatch.getExpiry().equals(batch.getExpiry())){
+			   found = true;
 				break;
 			}
 		}
 		
-		if(currentBatch == null){
+		//TODO Optional: add constraint to ensure amount does not exceed max
+		if( Shelf.getShelfById(shelfId).getCurrentAmount() + batch.getAmount() > Shelf.getShelfById(shelfId).getMaxProducts() ){
+		    throw new SQLException();
+		}
+		
+		
+		if(!found){
 			batch.persist();
 			addToShelfImmediate(shelfId,batch.getBatchId());
 		} else {
@@ -137,7 +144,7 @@ public class Shelf {
 			shelfId.next();
 			shelfId.getString("shelfId");
 		}catch(SQLException e){
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return false;
 		}
 		return true;
@@ -160,7 +167,7 @@ public class Shelf {
 			shelfSet.next();
 			shelfSet.getString("shelfId");
 		}catch(SQLException e){
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return false;
 		}
 		return true;
@@ -188,7 +195,8 @@ public class Shelf {
 			ResultSet shelfId = stmt.executeQuery();
 			shelfId.next();
 			shelfId.getString("shelfId");
-		}catch(SQLException e){
+		} catch(SQLException e) {
+		    Database.printStackTrace(e);
 			return false;
 		}
 		
@@ -208,7 +216,7 @@ public class Shelf {
 				shelves.add(new Integer(tables.getInt("shelfId")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -228,7 +236,7 @@ public class Shelf {
 				batches.add(new Integer(tables.getInt("batchId")));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -243,7 +251,7 @@ public class Shelf {
 			tables.next();
 			shelf = new Shelf(tables.getInt("shelfId"),tables.getInt("maxProducts"),tables.getInt("currentAmount"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		

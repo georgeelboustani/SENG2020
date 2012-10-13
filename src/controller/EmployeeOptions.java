@@ -21,6 +21,7 @@ import model.ProductType;
 import model.Sale;
 import model.Shelf;
 import model.Storage;
+import model.StorageType;
 import model.Store;
 import model.Supplier;
 import model.TableName;
@@ -137,6 +138,9 @@ public class EmployeeOptions {
 		String lname;
 		String password;
 		EmployeeType empType;
+		int productTypeId;
+		int orderId;
+		ProductBatch batch;
 		try {
 			switch (question) {
 				case "Change Employee First Name":
@@ -199,34 +203,64 @@ public class EmployeeOptions {
 					break;
 				case "Change product price":
 					//TODO - print product types and if
-					int productTypeId = CommandLine.getAnswerAsInt("Product Type Id: ");
+					productTypeId = CommandLine.getAnswerAsInt("Product Type Id: ");
 					int price = CommandLine.getAnswerAsInt("New Price: ");
 					s.changeProductPrice(productTypeId,price);
 					break;
 					//TODO: HARD
 				case "Order products":
-					int orderId = PosSystem.generateNextId(TableName.ORDER);
-					Date orderArrival = new java.sql.Date(0);
+					orderId = PosSystem.generateNextId(TableName.ORDER);
 					
-					System.out.println("The following 3 questions will gather the date of arrival");
-					orderArrival.setDate(CommandLine.getAnswerAsInt("Day of arrival:"));
-					orderArrival.setMonth(CommandLine.getAnswerAsInt("Month of arrival:"));
-					orderArrival.setYear(CommandLine.getAnswerAsInt("year of arrival:"));
+					Date orderArrival = null;
+					while (orderArrival == null) {
+					    try {
+					        orderArrival = Database.getSqlDate(CommandLine.getAnswerAsString("Arrival Date (yyyy-mm-dd):"));
+					    } catch (IllegalArgumentException e) {
+					        System.out.println("Please input a valid date in the following format yyyy-mm-dd");
+					    }
+					}
 					
 					Date receivedDate = null;
-					int productTypeId2 = ProductType.getProductTypeByName(ProductType.getAllAvailableProductTypes().get(CommandLine.getUserOption(ProductType.getAllAvailableProductTypes()) - 1)).getTypeId();
+					productTypeId = ProductType.getProductTypeByName(ProductType.getAllAvailableProductTypes().get(CommandLine.getUserOption(ProductType.getAllAvailableProductTypes()) - 1)).getTypeId();
 					int quantity = CommandLine.getAnswerAsInt("Quantity ordered:");
 					
 					// TODO - validate supplier id
 					int supplierId = CommandLine.getAnswerAsInt("Supplier Id:");
 					
-					Order newOrder = new Order(orderId,orderArrival,receivedDate,productTypeId2,quantity,supplierId);
+					Order newOrder = new Order(orderId,orderArrival,receivedDate,productTypeId,quantity,supplierId);
 					newOrder.persist();
 					
 					break;
-					//TODO: MEDIUM
 				case "Receive Order":
-					System.err.println("Unimplemented function");
+				    orderId = CommandLine.getAnswerAsInt("Order Id");
+					while (Order.getOrderById(orderId) == null || Order.getOrderById(orderId).getReceivedDate() != null) {
+					    orderId = CommandLine.getAnswerAsInt("Enter the id of an order that has not been previously received:");
+					}
+					
+					Order order = Order.getOrderById(orderId);
+					order.setReceivedDate(Database.getCurrentDate());
+					
+					Date expiry = null;
+                    while (expiry == null) {
+                        try {
+                            expiry = Database.getSqlDate(CommandLine.getAnswerAsString("Expiry Date (yyyy-mm-dd):"));
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Please input a valid date in the following format yyyy-mm-dd");
+                        }
+                    }
+                    
+                    price = CommandLine.getAnswerAsInt("Price:");
+					
+                    try {
+    					batch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH), 
+    					                                      ProductType.getProductTypeById(order.getProductType()).getType(),
+    					                                      expiry,price,order.getQuantity());
+    					int storageId = Storage.getStorageFromStore(StorageType.ORDERSDEPOT).get(0);
+    					Storage.addBatchToStorageOrOrderDepot(storageId, batch);
+                    } catch (Exception e) {
+                        order.setReceivedDate(null);
+                    }
+					
 					break;
 					//TODO: IMPORTANT increase stock counts on shelve when adding products
 				case "Add product to system":
@@ -278,7 +312,7 @@ public class EmployeeOptions {
 					
 					if (Shelf.isOnShelf(batchId, fromShelfId)) {
 						String amount = CommandLine.getAnswerAsString("Quantity [1," + ProductBatch.getBatchById(batchId).getAmount() + "]: ");
-						if(!DataValidator.validateInt(amount, 0, ProductBatch.getBatchById(batchId).getAmount())){
+						if (!DataValidator.validateInt(amount, 0, ProductBatch.getBatchById(batchId).getAmount())){
 							amount = CommandLine.getAnswerAsString("Input a quantity between 1 and " + ProductBatch.getBatchById(batchId).getAmount() + ": ");
 						}
 						
@@ -301,7 +335,45 @@ public class EmployeeOptions {
 					// TODO - finish this
 					// Get batch id and sale id.
 					// Return is valid if batch id is linked to sale id in salebatches
-					System.err.println("Unimplemented function");
+				    
+				    int saleId = CommandLine.getAnswerAsInt("Sale id");
+				    batchId = CommandLine.getAnswerAsInt("Batch Id");
+				    
+				    while (!Sale.isBatchInSale(saleId, batchId)) {
+				        System.out.println("The sale batch combination you entered does not exist, please try again.");
+				        saleId = CommandLine.getAnswerAsInt("Sale id");
+	                    batchId = CommandLine.getAnswerAsInt("Batch Id");
+				    }
+				    
+				    batch = ProductBatch.getBatchById(batchId);
+				    if (batch.getExpiry().before(Database.getCurrentDate())) {
+    				    int amount = CommandLine.getAnswerAsInt("How much of the product " + batch.getProductType().toLowerCase() + 
+    				                                        " would you like to return:");
+    				    while (amount > batch.getAmount() || amount < 0) {
+    				        amount = CommandLine.getAnswerAsInt("Please enter a number between 0 and " + batch.getAmount() + ":");
+    				    }
+    				    
+    				    batch.setAmount(batch.getAmount() - amount);
+    				    
+    				    // If a returns depot exists, place the products in the returns depot, else throw away
+    				    ArrayList<Integer> returndepots = Storage.getStorageFromStore(StorageType.RETURNSDEPOT);
+    				    if (returndepots.size() > 0) {
+    				        Storage returnDepot = Storage.getStorageById(returndepots.get(0));
+    				        
+    				        ProductBatch returnedBatch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH),
+    				                                                      batch.getProductType(), batch.getExpiry(),batch.getPrice(),
+    				                                                      amount);
+    				        try {
+        				        // Add the batch to the returns depot
+        				        Storage.addBatchToStorageOrOrderDepot(returnDepot.getId(), returnedBatch);
+    				        } catch (Exception e) {
+    				            batch.setAmount(batch.getAmount() + amount);
+    				        }
+    				    }
+				    } else {
+				        System.out.println("Unable to return select product batch as it is expired");
+				    }
+				    
 					break;
 				case "Change First Name":
 					fname = CommandLine.getAnswerAsString("New First Name: ");
@@ -339,10 +411,10 @@ public class EmployeeOptions {
 					throw new CancelException();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			employeeQuestionHandlerLevelTwo(questions,option);
 		} catch (InvalidIdException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			employeeQuestionHandlerLevelTwo(questions,option);
 		} catch (CancelException e) {
 			System.out.println("Cancelled out of level two");

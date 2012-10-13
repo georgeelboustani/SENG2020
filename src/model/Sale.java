@@ -1,6 +1,7 @@
 package model;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -60,6 +61,22 @@ public class Sale {
 			stmt.setInt(2, itr.next().getBatchId());
 			db.executeQuery(stmt);
 		}
+	}
+	
+	public static boolean isBatchInSale(int saleId, int batchId) {
+	    boolean isInSale = true;
+	    
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.salebatches " +
+            		                                                      "WHERE saleId = " + saleId +
+            		                                                      "AND batchId = " + batchId).executeQuery();
+            tables.next();
+        } catch (Exception e) {
+            Database.printStackTrace(e);
+            isInSale = false;
+        }
+        
+        return isInSale;
 	}
 
 	public int getSaleId() {

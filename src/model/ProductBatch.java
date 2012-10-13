@@ -34,7 +34,7 @@ public class ProductBatch {
     	
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.batchId);
-		stmt.setObject(2, this.type);
+		stmt.setInt(2, ProductType.getProductTypeByName(this.type).getTypeId());
 		stmt.setDate(3, this.expiry);
 		stmt.setDouble(4, this.price);
 		stmt.setInt(5, this.amount);
@@ -86,6 +86,7 @@ public class ProductBatch {
 
 			PosSystem.getDatabase().executeQuery(stmt);
 		} catch (Exception e) {
+		    Database.printStackTrace(e);
 			System.err.println("Failed to delete");
 		}
 
@@ -108,6 +109,7 @@ public class ProductBatch {
 
 			this.amount = amount;
 		} catch (Exception e) {
+		    Database.printStackTrace(e);
 			System.err.println("Failed to set amount");
 		}
 	}
@@ -128,12 +130,12 @@ public class ProductBatch {
 			ResultSet tables = con.prepareStatement("SELECT * FROM seng2020.productbatch WHERE batchId = " + id).executeQuery();
 			tables.next();
 			batch = new ProductBatch(tables.getInt("batchId"),
-					                 tables.getString("productType"),
+					                 ProductType.getProductTypeById(tables.getInt("productType")).getType().toString(),
 					                 tables.getDate("expiry"),
 					                 tables.getDouble("price"),
 					                 tables.getInt("amount"));
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 

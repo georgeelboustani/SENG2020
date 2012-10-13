@@ -19,6 +19,7 @@ import com.mysql.jdbc.Connection;
 
 public class Database {
 	
+    private static boolean debugging = true;
 	private static String localServer = "jdbc:mysql://localhost:3306/";
 	private static String localDB = "seng2020";
 	
@@ -66,7 +67,7 @@ public class Database {
 			}
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 		}
 	}
 	
@@ -167,6 +168,19 @@ public class Database {
 
 	public static Date getCurrentDate() {
 		return java.sql.Date.valueOf(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
+	}
+	
+	/**
+	 * @param date yyyy-mm-dd
+	 */
+	public static Date getSqlDate(String date) {
+	   return java.sql.Date.valueOf(date);
+	}
+	
+	public static void printStackTrace(Exception e) {
+	    if (debugging) {
+	        e.printStackTrace();
+	    }
 	}
 
 }

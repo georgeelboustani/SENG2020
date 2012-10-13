@@ -1,6 +1,7 @@
 package model;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -85,7 +86,26 @@ public class Order {
 	}
 
 	public void setReceivedDate(Date receivedDate) {
-		this.receivedDate = receivedDate;
+        Connection con = PosSystem.getConnection();
+        
+        try {
+            PreparedStatement stmt = null;
+            
+            String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".order " +
+                           "SET receivedDate = ? " +
+                           "WHERE id = ?";
+            
+            stmt = con.prepareStatement(query);
+            stmt.setDate(1, receivedDate);
+            stmt.setInt(2, this.orderId);
+
+            PosSystem.getDatabase().executeQuery(stmt);
+            
+            this.receivedDate = receivedDate;
+        } catch (Exception e) {
+            Database.printStackTrace(e);
+            System.err.println("Failed to set type");
+        }
 	}
 
 	public int getProductType() {
@@ -106,5 +126,21 @@ public class Order {
 	
 	public int getSupplierId() {
 		return supplierId;
+	}
+	
+	public static Order getOrderById(int id) {
+	    Order order = null;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.order WHERE id = " + id).executeQuery();
+            tables.next();
+            order = new Order(id, tables.getDate(3), tables.getDate(4), tables.getInt(5), tables.getInt(6), tables.getInt(7));
+            order.orderDate = tables.getDate(2);
+        } catch (Exception e) {
+            Database.printStackTrace(e);
+            return null;
+        }
+        
+        return order;
 	}
 }

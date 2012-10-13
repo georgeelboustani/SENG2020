@@ -49,10 +49,14 @@ public class Storage {
 		
 		db.executeQuery(stmt);
 		
-		persistShelfMapping();
+		if (this.type.equals(StorageType.RETURNSDEPOT) || this.type.equals(StorageType.ORDERSDEPOT)) {
+		    Shelf newShelf = new Shelf(PosSystem.generateNextId(TableName.SHELF),Integer.MAX_VALUE,0);
+		    newShelf.persist();
+		    Storage.addShelfMapping(this.id,newShelf.getShelfId());
+		}
 	}
 	
-	private void persistShelfMapping() throws SQLException {
+	private static void addShelfMapping(int storageId, int shelfId) throws SQLException {
 		PreparedStatement stmt = null;
 		Database db = PosSystem.getDatabase();
 		Connection con = PosSystem.getConnection();
@@ -60,13 +64,23 @@ public class Storage {
 		String query = "INSERT into " + db.getDbName() + ".storageshelf (`storageId`,`shelfId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
-		stmt.setInt(1, this.id);
-		
-		Iterator<Shelf> itr = shelves.iterator();
-		while (itr.hasNext()) {
-			stmt.setInt(2, itr.next().getShelfId());
-			db.executeQuery(stmt);
-		}
+		stmt.setInt(1, storageId);
+		stmt.setInt(2, shelfId);
+	}
+	
+	public static void addBatchToStorageOrOrderDepot(int storageId,ProductBatch batch) throws SQLException {
+	    Storage depot = Storage.getStorageById(storageId);
+	    
+	    if (depot != null && (depot.getStorageType().equals(StorageType.RETURNSDEPOT) || depot.getStorageType().equals(StorageType.ORDERSDEPOT))) {
+	        if (batch != null) {
+	            Shelf shelf = Shelf.getShelfById(Shelf.getShelvesFromStorage(storageId).get(0));
+	            Shelf.addToShelf(shelf.getShelfId(), batch);
+	        } else {
+	            System.err.println("Provided batch is null");
+	        }
+	    } else {
+	        System.err.println("Error while adding to return or order depot. Provided storage id is not of such a depot.");
+	    }
 	}
 	
 	public int getId(){
@@ -75,6 +89,10 @@ public class Storage {
 	
 	public void setId(int id){
 		this.id = id;
+	}
+	
+	public StorageType getStorageType() {
+	    return this.type;
 	}
 	
 	public List<Shelf> getShelves() {
@@ -167,7 +185,7 @@ public class Storage {
 				storages.add(tables.getInt(1));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -182,7 +200,7 @@ public class Storage {
 			tables.next();
 			storage = new Storage(tables.getInt("id"),StorageType.valueOf(tables.getString("type")));
 		} catch (SQLException e) {
-			e.printStackTrace();
+		    Database.printStackTrace(e);
 			return null;
 		}
 		
