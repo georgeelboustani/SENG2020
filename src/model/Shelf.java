@@ -173,35 +173,27 @@ public class Shelf {
 		return true;
 	}
 	
-	
-	public static boolean isInStorage(int batchId, int storageId) {
-		PreparedStatement stmt;
-		Database db = PosSystem.getDatabase();
-		Connection con = PosSystem.getConnection();
-		
-		String query = "SELECT * FROM seng2020.shelfbatch " +
-				       "WHERE batchId = ? " +
-				       "AND EXISTS (SELECT * " +
-				       "            FROM storageshelf " +
-				       "            WHERE shelfId = (SELECT shelfId " +
-				       "                             FROM shelfbatch " +
-				       "                             WHERE batchId = ?) AND storageId = ?)";
-		try{
-			stmt = con.prepareStatement(query);
-			stmt.setInt(1, batchId);
-			stmt.setInt(2, batchId);
-			stmt.setInt(3, storageId);
-			
-			ResultSet shelfId = stmt.executeQuery();
-			shelfId.next();
-			shelfId.getString("shelfId");
-		} catch(SQLException e) {
-		    Database.printStackTrace(e);
-			return false;
-		}
-		
-		return true;
-	}
+   public static boolean isInStorage(int shelfId, int storageId) {
+        PreparedStatement stmt;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "SELECT * FROM seng2020.storageshelf " +
+                       "WHERE shelfId = ? AND storageId = ?";
+        try{
+            stmt = con.prepareStatement(query);
+            stmt.setInt(1, shelfId);
+            stmt.setInt(2, storageId);
+            
+            ResultSet tables = stmt.executeQuery();
+            tables.next();
+            tables.getString("shelfId");
+        } catch(SQLException e) {
+            return false;
+        }
+        
+        return true;
+    }
 	
 	public static ArrayList<Integer> getShelvesFromStorage(int storageId) {
 		ArrayList<Integer> shelves = new ArrayList<Integer>();

@@ -53,7 +53,6 @@ public class ProductType {
 			}
 			
 		} catch (Exception e) {
-		    Database.printStackTrace(e);
 			System.err.println("Failed to create product type. It already exists");
 		}
 	}
@@ -73,7 +72,6 @@ public class ProductType {
 				types.add(type.name);
 			}
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		
@@ -103,7 +101,6 @@ public class ProductType {
 			tables.next();
 			type = new ProductType(id,tables.getString(2),tables.getString(3),tables.getInt("categoryId"));
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

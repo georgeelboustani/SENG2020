@@ -15,15 +15,16 @@ import view.*;
 public class Main {
 	
 	private static int storeId = 1;
+	private static int registerId = 1;
 	public static Employee currentEmployee = null;
 	public static Member currentMember = null;
 	private static boolean activeUser = false;
 	
 	public static void main(String[] args) throws SQLException {
 		try {
-			PosSystem.initialise(new Database("user","pass"), storeId);
+			PosSystem.initialise(new Database("user","pass"), storeId, registerId);
 		} catch (InvalidIdException e) {	
-			System.err.println("Pos system failed to run. Invalid store id configuration.");
+			System.err.println("Pos system failed to run. Invalid store id or register configuration.");
 		}
 		
 		while (PosSystem.isInitialised()) {
@@ -68,6 +69,7 @@ public class Main {
 				
 				if (option == 1) {
 					logInSuccessful = loginEmployee();
+					// TODO - add log entry for register
 				} else if (option == 2) {
 					logInSuccessful = loginMember();
 				}

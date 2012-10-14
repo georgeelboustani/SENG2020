@@ -43,7 +43,6 @@ public class ProductCategory {
 				PosSystem.getDatabase().executeQuery(stmt);
 			}
 		} catch (Exception e) {
-		    Database.printStackTrace(e);
 			System.err.println("Failed to create product type. It already exists");
 		}
 	}
@@ -57,7 +56,6 @@ public class ProductCategory {
 			tables.next();
 			category = new ProductCategory(tables.getInt("categoryId"),tables.getString("categoryName"));
 		} catch (Exception e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

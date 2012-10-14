@@ -3,6 +3,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.mysql.jdbc.Connection;
 
@@ -64,7 +65,24 @@ public class ProductBatch {
 	}
 
 	public void setPrice(double price) {
-		this.price = price;
+        Connection con = PosSystem.getConnection();
+        
+        try {
+            PreparedStatement stmt = null;
+            
+            String query = "UPDATE " + PosSystem.getDatabase().getDbName() + ".productbatch " +
+                           "SET price = ? " +
+                           "WHERE batchId = ?";
+            
+            stmt = con.prepareStatement(query);
+            stmt.setDouble(1, price);
+            stmt.setInt(2, this.batchId);
+
+            PosSystem.getDatabase().executeQuery(stmt);
+            this.price = price;
+        } catch (Exception e) {
+            System.err.println("Failed to set price");
+        }
 	}
 
 	public int getAmount() {
@@ -135,10 +153,54 @@ public class ProductBatch {
 					                 tables.getDouble("price"),
 					                 tables.getInt("amount"));
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 
 		return batch;
 	}
+	
+	/**
+	 * @return batches that have not yet been sold, not in returns depot and not in orders depot
+	 */
+	   public static ArrayList<String> getAllAvailableBatchesOfType(ProductType type) {
+	        ArrayList<String> batches = new ArrayList<String>();
+	        Connection con = PosSystem.getConnection();
+	        
+	        try {
+	            String query = "SELECT batchId FROM seng2020.productbatch WHERE productType = " + type.getTypeId();
+	            
+	            PreparedStatement stmt = con.prepareStatement(query);
+
+	            ResultSet tables = stmt.executeQuery();
+	            while (tables.next()) {
+	                ProductBatch batch = getBatchById(tables.getInt(1));
+	                
+	                String storageType = null;
+	                
+	                ArrayList<Integer> storages = Storage.getStorageFromStore(StorageType.BACKROOM);
+	                storages.addAll(Storage.getStorageFromStore(StorageType.FLOOR));
+	                storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
+	                for (Integer id: storages) {
+	                    if (Storage.isInStorage(batch.getBatchId(), id)) {
+	                        storageType = Storage.getStorageById(id).getStorageType().toString();
+	                        break;
+	                    }
+	                }
+	                
+	                
+	                if (!Sale.batchHasBeenSold(batch.getBatchId()) && storageType != null) {
+	                    batches.add(batch.batchId + "  " + batch.expiry + "  " + batch.price);
+	                }
+	            }
+	            
+	            if (batches.size() == 0) {
+	                return null;
+	            }
+	        } catch (SQLException e) {
+	            Database.printStackTrace(e);
+	            return null;
+	        }
+	        
+	        return batches;
+	    }
 }

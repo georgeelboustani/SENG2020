@@ -23,7 +23,6 @@ public class LogEntry {
 		this.date = date;
 		this.currentEmployeeId = currentEmployeeId;
 		this.logDescription = description;
-		this.registerId = registerId;
 	}
 	
 	public void persist() throws SQLException {

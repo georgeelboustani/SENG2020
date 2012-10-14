@@ -13,7 +13,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void insertEmployee() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		PosSystem.getDatabase().clearData();
 		
 		Employee testEmp = new Employee(4,"TEE","T",EmployeeType.ADMIN,"pass");
@@ -29,7 +29,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void insertLogEntry() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		PosSystem.getDatabase().clearData();
 		
 		Employee testEmp = new Employee(5,"YOO","B",EmployeeType.STAFF,"pass");
@@ -52,7 +52,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void changeEmployeeClass() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		
 		Employee testEmp = new Employee(10,"Matty","Johns",EmployeeType.STAFF,"pass");
 		testEmp.persist();
@@ -62,7 +62,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void disableEmployee() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		
 		Employee testEmp = new Employee(11,"Andrew","Johns",EmployeeType.ADMIN,"pass");
 		testEmp.persist();
@@ -72,7 +72,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void enableEmployee() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		
 		Employee testEmp = new Employee(12,"Bill","Clinton",EmployeeType.MANAGER,"pass");
 		testEmp.persist();
@@ -82,7 +82,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void changeProductPrice() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		Store s = new Store(1);
 		s.changeProductPrice(1, 1024);
 	}
@@ -90,7 +90,7 @@ public class testDatabase {
 	
 	@Test @Ignore
 	public void changeDetails() throws SQLException, InvalidIdException {
-		PosSystem.initialise(new Database("user","pass"), 1);
+		PosSystem.initialise(new Database("user","pass"), 1,1);
 		
 		Employee testEmp = new Employee(11,"Andrew","Johns",EmployeeType.ADMIN,"pass");
 		testEmp.setFirstName("Steve");

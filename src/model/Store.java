@@ -21,19 +21,16 @@ public class Store {
 	private Storage backroom;
 	private Storage warehouse;
 	private Storage returnsdepot;
-	  private Storage orderdepot;
-	private ArrayList<Sale> sales;
+	private Storage orderdepot;
 	
-	public Store(int id) {
+	public Store(int id) throws SQLException {
 		this.storeId = id;
 		
-		sales = new ArrayList<Sale>();
-		
-		floorspace = new Storage(0,StorageType.FLOOR);
-		backroom = new Storage(1,StorageType.BACKROOM);
-		warehouse = new Storage(2,StorageType.WAREHOUSE);
-		returnsdepot = new Storage(3,StorageType.RETURNSDEPOT);
-		orderdepot = new Storage(4,StorageType.ORDERSDEPOT);
+		floorspace = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.FLOOR);
+		backroom = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.BACKROOM);
+		warehouse = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.WAREHOUSE);
+		returnsdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.RETURNSDEPOT);
+		orderdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.ORDERSDEPOT);
 	}
 	
 	public void persist() throws SQLException {
@@ -69,7 +66,7 @@ public class Store {
 	}
 	
 	public void addRegister() throws SQLException {
-		Register reg = new Register(PosSystem.generateNextId(TableName.REGISTER));
+		Register reg = new Register(PosSystem.generateNextId(TableName.REGISTER),0,null);
 		reg.persist();
 		
 		persistRegisterMapping(reg);
@@ -112,7 +109,7 @@ public class Store {
 	private void persistStorageMapping(Storage s) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getConnection();
-		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storestorage (`storeId`,`storageId`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storestorage (`storeId`,`storageId`) " +
 				"VALUES (?,?)";
 		stmt = con.prepareStatement(query);
 		stmt.setInt(1, this.storeId);
@@ -121,10 +118,11 @@ public class Store {
 		PosSystem.getDatabase().executeQuery(stmt);
 	}
 	
+	// TODO - no such thing as storesale table. Where not keeping mappings between stores and sales
 	private void persistSaleMapping(Sale s) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getConnection();
-		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storesale (`storeId`,`saleId`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storesale (`storeId`,`saleId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.storeId);
@@ -136,7 +134,7 @@ public class Store {
 	private void persistRegisterMapping(Register reg) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getConnection();
-		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeregister (`storeId`,`registerId`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storeregister (`storeId`,`registerId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.storeId);
@@ -148,7 +146,7 @@ public class Store {
 	private void persistEmployeeMapping(Employee emp) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getConnection();
-		String query = "REPLACE into " + PosSystem.getDatabase().getDbName() + ".storeemployee (`storeId`,`employeeId`) " +
+		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storeemployee (`storeId`,`employeeId`) " +
 				"VALUES (?,?)";
     	stmt = con.prepareStatement(query);
     	stmt.setInt(1, this.storeId);
@@ -209,7 +207,7 @@ public class Store {
 	 * @param productTypeId
 	 * @param price
 	 */
-	public void changeProductPrice(int productTypeId, int price) {
+	public void changeProductPrice(int productTypeId, double price) {
 		try {	
 			PreparedStatement stmt = null;
 			Database db = PosSystem.getDatabase();
@@ -221,7 +219,7 @@ public class Store {
 					") AND (NOT EXISTS (select * from " + db.getDbName() + ".salebatches " +
 							         "WHERE salebatches.batchId = productbatch.batchId))";
 	    	stmt = con.prepareStatement(query);
-	    	stmt.setInt(1, price);
+	    	stmt.setDouble(1, price);
 			stmt.setInt(2, productTypeId);
 			
 			db.executeQuery(stmt);

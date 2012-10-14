@@ -71,13 +71,28 @@ public class Sale {
             		                                                      "WHERE saleId = " + saleId +
             		                                                      "AND batchId = " + batchId).executeQuery();
             tables.next();
+            tables.getInt(1);
         } catch (Exception e) {
-            Database.printStackTrace(e);
             isInSale = false;
         }
         
         return isInSale;
 	}
+	
+    public static boolean batchHasBeenSold(int batchId) {
+        boolean isInSale = true;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.salebatches " +
+                                                                          "WHERE batchId = " + batchId).executeQuery();
+            tables.next();
+            tables.getInt(1);
+        } catch (Exception e) {
+            isInSale = false;
+        }
+        
+        return isInSale;
+    }
 
 	public int getSaleId() {
 		return saleId;

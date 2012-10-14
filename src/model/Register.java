@@ -1,5 +1,6 @@
 package model;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -9,17 +10,20 @@ import com.mysql.jdbc.Connection;
 
 import database.Database;
 
-
 public class Register {
 	
 	private int registerId;
 	private double balance;
-	private List<LogEntry> logEntries; // TODO - new a way to create log entries, and persist
 	private Employee currentEmployee; //not currently in class diagram
 	
-	public Register(int id) {
+	public Register(int id, int balance, Integer employeeId) {
 		this.registerId = id;
-		logEntries = new ArrayList<LogEntry>();
+		this.balance = balance;
+		if (employeeId == null) {
+		    currentEmployee = null;
+		} else {
+		    currentEmployee = Employee.getEmployeeById(employeeId);
+		}
 	}
 	
 	public void persist() throws SQLException {
@@ -42,13 +46,23 @@ public class Register {
 	
 		db.executeQuery(stmt);
 	}
+	
+	public static Register getRegisterById(int registerId) {
+	    Register register = null;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.register WHERE registerId = " + registerId).executeQuery();
+            tables.next();
+            register = new Register(tables.getInt("registerId"),tables.getInt("balance"),tables.getInt("currentEmployee"));
+        } catch (SQLException e) {
+            return null;
+        }
+        
+        return register;
+    }
 
 	public Employee activeEmployee() {
 		return currentEmployee;
-	}
-
-	public void addEntry(LogEntry entry) {
-		logEntries.add(entry);
 	}
 
 	public void balanceTill() {

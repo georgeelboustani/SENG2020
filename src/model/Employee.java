@@ -3,6 +3,7 @@ package model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.mysql.jdbc.Connection;
 
@@ -197,6 +198,28 @@ public class Employee {
 		
 		return emp;
 	}
+	
+	public static ArrayList<Integer> getEmployeesFromStore(EmployeeType type) {
+        ArrayList<Integer> employees = new ArrayList<Integer>();
+        
+        try {
+            String query = "SELECT DISTINCT storeemployee.employeeId FROM seng2020.storeemployee, seng2020.employee " +
+                           "WHERE storeemployee.employeeId = employee.id AND storeemployee.storeId = ? AND employee.employeeType = ?";
+            PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+            stmt.setInt(1, PosSystem.getStoreId());
+            stmt.setString(2, type.toString());
+            
+            ResultSet tables = stmt.executeQuery();
+            while(tables.next()) {
+                employees.add(tables.getInt(1));
+            }
+        } catch (SQLException e) {
+            Database.printStackTrace(e);
+            return null;
+        }
+        
+        return employees;
+    }
 
 	public void demote() {
 		switch (this.type) {

@@ -44,7 +44,34 @@ public class CommandLine {
 		
 		return answer;
 	}
-	
+	/*
+	public static double getAnswerAsDouble(String question) throws CancelException {
+        int answer  = 0;
+        System.out.print(question + " ");
+        
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String selection = null;
+        
+        try {
+            selection = in.readLine();
+            while(!selection.equalsIgnoreCase("cancel") && !DataValidator.validateInt(selection)) {
+                System.out.print("Answer must be an integer: ");
+                selection = in.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error while submitting an answer, please try again");
+            answer = getAnswerAsInt(question);
+        }
+
+        if (selection.equalsIgnoreCase("cancel")) {
+            throw new CancelException();
+        } else {
+            answer = Double.parseDouble(selection);
+        }
+        
+        return answer;
+    }
+	*/
 	public static String getAnswerAsString(String question, ArrayList<String> types) throws CancelException {
 		// TODO - print off the types for the user to choose from
 		System.out.println(question);

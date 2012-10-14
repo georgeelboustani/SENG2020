@@ -15,22 +15,39 @@ public class PosSystem {
 	
 	private static Database db;
 	private static int storeId;
+	private static int registerId;
 	private static boolean initialisationSuccessful;
 	private static Connection con;
 	private PosSystem() {
 		
 	}
 	
-	public static void initialise(Database db, int storeId) throws InvalidIdException, SQLException {
+	public static void initialise(Database db, int storeId, int registerId) throws InvalidIdException, SQLException {
 		PosSystem.db = db;
 		PosSystem.con = db.createConnection();
 		if (Store.getStoreById(storeId) == null) {
-			initialisationSuccessful = false;
-			throw new InvalidIdException();
+//			initialisationSuccessful = false;
+//			throw new InvalidIdException();
+		    PosSystem.storeId = storeId;
+		    Store newStore = new Store(storeId);
+		    newStore.persist();
+		    System.out.println("Created store with id from the configuration");
 		} else {
 			PosSystem.storeId = storeId;
 			initialisationSuccessful = true;
 		}
+		
+		if (Register.getRegisterById(registerId) == null) {
+//            initialisationSuccessful = false;
+//            throw new InvalidIdException();
+	          PosSystem.registerId = registerId;
+	          Register newRegister = new Register(registerId,0,null);
+	          newRegister.persist();
+	          System.out.println("Created register with id from the configuration");
+        } else {
+            PosSystem.registerId = registerId;
+            initialisationSuccessful = true;
+        }
 	}
 	
 	

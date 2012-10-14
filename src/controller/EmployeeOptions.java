@@ -87,12 +87,14 @@ public class EmployeeOptions {
 				newQuestions.add("Add product to system");
 				newQuestions.add("Add category to system");
 				newQuestions.add("Transfer products");
+				newQuestions.add("Check Expired products");
 				break;
 			case "Manage Storage":
 				newQuestions.add("Add supplier");
 				newQuestions.add("Remove supplier");
-				newQuestions.add("Add Warehouse");
-				// TODO - add space to storage locations
+				newQuestions.add("Add Storage");
+				newQuestions.add("Add Shelf");
+				// FIXME - add space to storage locations
 				break;
 			case "Sell product":
 				newQuestions.add("Sell product(Cash)");
@@ -107,6 +109,7 @@ public class EmployeeOptions {
 				newQuestions.add("Change Password");
 				break;
 			case "Reporting":
+			    newQuestions.add("Report Storages");
 				newQuestions.add("Report Employees");
 				newQuestions.add("Report Products");
 				break;
@@ -141,6 +144,7 @@ public class EmployeeOptions {
 		int productTypeId;
 		int orderId;
 		ProductBatch batch;
+		ArrayList<Integer> storages;
 		try {
 			switch (question) {
 				case "Change Employee First Name":
@@ -202,12 +206,35 @@ public class EmployeeOptions {
 					s.changeEmployeeType(empId,false);
 					break;
 				case "Change product price":
-					//TODO - print product types and if
-					productTypeId = CommandLine.getAnswerAsInt("Product Type Id: ");
-					int price = CommandLine.getAnswerAsInt("New Price: ");
-					s.changeProductPrice(productTypeId,price);
+					boolean changeAll = CommandLine.getYesOrNo("Would you like to change the price of a product type for every batch?");
+					
+				    String typeName = CommandLine.getAnswerAsString("Product Type:",ProductType.getAllAvailableProductTypes());
+					
+					
+					ProductType productType = ProductType.getProductTypeByName(typeName);
+					if (changeAll) {
+					    double price = CommandLine.getAnswerAsInt("New Price: ");
+					    s.changeProductPrice(productType.getTypeId(),price);
+					} else {
+					    if (ProductBatch.getAllAvailableBatchesOfType(productType) != null) {
+					        System.out.println("Batch Id | Expiry | Price | Location");
+    					    CommandLine.printList(ProductBatch.getAllAvailableBatchesOfType(productType));
+    					    
+    					    int chosenBatchId = CommandLine.getAnswerAsInt("Batch Id:");
+    					    ProductBatch chosenBatch = ProductBatch.getBatchById(chosenBatchId);
+    					    while (chosenBatch == null 
+    					           || !chosenBatch.getProductType().equals(productType.getType().toString())
+    					           || Sale.batchHasBeenSold(chosenBatchId)) {
+    					        chosenBatchId = CommandLine.getAnswerAsInt("Please enter a batch id that exists in the above list:");
+    	                        chosenBatch = ProductBatch.getBatchById(chosenBatchId);
+    					    }
+    					    double price = CommandLine.getAnswerAsInt("New Price: ");
+    					    chosenBatch.setPrice(price);
+					    } else {
+					        System.out.println("No batches of the given product type found on the floor, backroom or warehouses");
+					    }
+					}
 					break;
-					//TODO: HARD
 				case "Order products":
 					orderId = PosSystem.generateNextId(TableName.ORDER);
 					
@@ -219,12 +246,12 @@ public class EmployeeOptions {
 					        System.out.println("Please input a valid date in the following format yyyy-mm-dd");
 					    }
 					}
-					
+
 					Date receivedDate = null;
 					productTypeId = ProductType.getProductTypeByName(ProductType.getAllAvailableProductTypes().get(CommandLine.getUserOption(ProductType.getAllAvailableProductTypes()) - 1)).getTypeId();
 					int quantity = CommandLine.getAnswerAsInt("Quantity ordered:");
 					
-					// TODO - validate supplier id
+					// FIXME - validate supplier id
 					int supplierId = CommandLine.getAnswerAsInt("Supplier Id:");
 					
 					Order newOrder = new Order(orderId,orderArrival,receivedDate,productTypeId,quantity,supplierId);
@@ -249,7 +276,7 @@ public class EmployeeOptions {
                         }
                     }
                     
-                    price = CommandLine.getAnswerAsInt("Price:");
+                    double price = CommandLine.getAnswerAsInt("Price:");
 					
                     try {
     					batch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH), 
@@ -295,19 +322,65 @@ public class EmployeeOptions {
 					break;
 					
 				case "Transfer products":
+                    storages = Storage.getStorageFromStore(StorageType.BACKROOM);
+                    storages.addAll(Storage.getStorageFromStore(StorageType.FLOOR));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.RETURNSDEPOT));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.ORDERSDEPOT));
+                    
+                    System.out.println("Storage Id | Storage Type");
+                    for (Integer id: storages) {
+                        System.out.println(id + "  " + Storage.getStorageById(id).getStorageType());
+                    }
+                    int fromStorageId = CommandLine.getAnswerAsInt("From Storage Id:");
+                    while (Storage.getStorageById(fromStorageId) == null) {
+                        fromStorageId = CommandLine.getAnswerAsInt("Please input a storage Id from the above list:");
+                    }
+                    
+                    int toStorageId = CommandLine.getAnswerAsInt("To Storage Id:");
+                    while (Storage.getStorageById(fromStorageId) == null) {
+                        toStorageId = CommandLine.getAnswerAsInt("Please input a storage Id from the above list:");
+                    }
+				    
+                    System.out.println("Existing shelves in the from storage with id " + fromStorageId);
+                    for (Integer id: Shelf.getShelvesFromStorage(fromStorageId)) {
+                        System.out.print(id + "  [");
+                        for (Integer batchId: Shelf.getProductsFromShelf(id)) {
+                            ProductBatch tempBatch = ProductBatch.getBatchById(batchId);
+                            System.out.print(tempBatch.getProductType() + "(" + tempBatch.getAmount() + ") ");
+                        }
+                        System.out.println("]");
+                    }
+                    
 					int fromShelfId = CommandLine.getAnswerAsInt("From shelf id:");
-					while( Shelf.getShelfById(fromShelfId) == null){
-						fromShelfId = CommandLine.getAnswerAsInt("Enter a from shelf id which exists:");
+					while(!Shelf.isInStorage(fromShelfId, fromStorageId)){
+						fromShelfId = CommandLine.getAnswerAsInt("Enter a from shelf id from the list above:");
 					}
 					
-					int toShelfId = CommandLine.getAnswerAsInt("To shelf id:");
-					while( Shelf.getShelfById(toShelfId) == null){
-						toShelfId = CommandLine.getAnswerAsInt("Enter a to shelf id which exists:");
-					}
+					System.out.println("Existing shelves in the to storage with id " + toStorageId);
+					for (Integer id: Shelf.getShelvesFromStorage(toStorageId)) {
+                        System.out.print(id + "  [");
+                        for (Integer batchId: Shelf.getProductsFromShelf(id)) {
+                            ProductBatch tempBatch = ProductBatch.getBatchById(batchId);
+                            System.out.print(tempBatch.getProductType() + " (" + tempBatch.getAmount() + ")");
+                        }
+                        System.out.println("]");
+                    }
+                    
+                    int toShelfId = CommandLine.getAnswerAsInt("To shelf id:");
+                    while(!Shelf.isInStorage(toShelfId, toStorageId)){
+                        toShelfId = CommandLine.getAnswerAsInt("Enter a to shelf id from the list above:");
+                    }
 					
+                    // Print product batches on the "from" shelf
+                    System.out.println("Batch Id | Product Type | Amount");
+                    for (Integer id: Shelf.getProductsFromShelf(fromShelfId)) {
+                        ProductBatch tempBatch = ProductBatch.getBatchById(id);
+                        System.out.println(id + "  " + tempBatch.getProductType() + "  " + tempBatch.getAmount());
+                    }
 					int batchId = CommandLine.getAnswerAsInt("Product batch id:");
-					while( ProductBatch.getBatchById(batchId) == null){
-						batchId = CommandLine.getAnswerAsInt("Enter a product batch id which exists");
+					while(!Shelf.isOnShelf(batchId, fromShelfId)){
+						batchId = CommandLine.getAnswerAsInt("Enter a product batch id which exists on the from shelf, found from the list above:");
 					}
 					
 					if (Shelf.isOnShelf(batchId, fromShelfId)) {
@@ -327,15 +400,10 @@ public class EmployeeOptions {
 					break;
 				case "Sell product(Card)":
 					handleSale();
-					// TODO - do CREDIT CARD
 					CommandLine.getAnswerAsString("Please input credit card number");
 					break;
-					//TODO: HARD
 				case "Return product":
-					// TODO - finish this
-					// Get batch id and sale id.
-					// Return is valid if batch id is linked to sale id in salebatches
-				    
+				    // TODO - test this
 				    int saleId = CommandLine.getAnswerAsInt("Sale id");
 				    batchId = CommandLine.getAnswerAsInt("Batch Id");
 				    
@@ -388,25 +456,93 @@ public class EmployeeOptions {
 					Main.currentEmployee.setPassword(password);
 					break;
 				case "Add supplier":
-					// TODO - Add supplier
-					System.err.println("Unimplemented function");
+				    try{
+				        String supName = CommandLine.getAnswerAsString("Company Name: ");
+	                    String supAddress = CommandLine.getAnswerAsString("Address: ");
+	                    int phone = CommandLine.getAnswerAsInt("Phone: ");
+	                    String supDesc = CommandLine.getAnswerAsString("Description: ");
+	                    
+	                    Supplier sup = new Supplier(PosSystem.generateNextId(TableName.SUPPLIER),supName,supAddress,phone,supDesc);
+	                    sup.persist();
+				    }catch (Exception e){
+                        System.out.println("Invalid supplier; supplier not created");
+				    }
+                    
 					break;
 				case "Remove supplier":
 					// TODO - Remove supplier
 					System.err.println("Unimplemented function");
 					break;
-				case "Add Warehouse":
-					// TODO - Add Warehouse
-					System.err.println("Unimplemented function");
-					break;
+				case "Add Storage":
+				    ArrayList<String> sto = new ArrayList<String>();
+				    sto.add(StorageType.values()[0].toString());
+				    sto.add(StorageType.values()[1].toString());
+				    sto.add(StorageType.values()[2].toString());
+				    CommandLine.printList(sto);
+				    
+	                String storType = null;
+                    while (storType == null) {
+                        try {
+                            storType = CommandLine.getAnswerAsString("Storage type: ").toUpperCase();
+                            StorageType.valueOf(storType); // To cause an exception if invalid
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Please enter a valid storage type.");
+                            storType = null;
+                        }
+                    }
+                        
+                    Storage newStorage = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.valueOf(storType));
+                    newStorage.persist();
+                    break;
+				case "Report Storages":
+				    storages = Storage.getStorageFromStore(StorageType.BACKROOM);
+                    storages.addAll(Storage.getStorageFromStore(StorageType.FLOOR));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.RETURNSDEPOT));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.ORDERSDEPOT));
+                    
+                    System.out.println("Storage Id | Storage Type");
+                    for (Integer id: storages) {
+                        System.out.println(id + "  " + Storage.getStorageById(id).getStorageType());
+                    }
+				    break;
 				case "Report Employees":
-					// TODO - report employees
-					System.err.println("Unimplemented function");
+					ArrayList<String> types = EmployeeType.valuesToString();
+					String type = CommandLine.getAnswerAsString("Choose an employee type to search for:", types);
+					
+					ArrayList<Integer> employees = Employee.getEmployeesFromStore(EmployeeType.valueOf(type));
+                    
+                    System.out.println("Employee Id | Employee Name");
+                    for (Integer id: employees) {
+                        System.out.println(id + "  " + Employee.getEmployeeById(id).getFirstName() + Employee.getEmployeeById(id).getLastName());
+                    }
 					break;
 				case "Report Products":
 					// TODO - report products
 					System.err.println("Unimplemented function");
 					break;
+				case "Add Shelf":
+				    // TODO - add shelf
+                    System.err.println("Unimplemented function");
+				    break;
+				case "Check Expired products":
+				    // TODO - expire products
+                    System.err.println("Unimplemented function");
+                    ArrayList<ProductBatch> batches = Storage.getProductBatchesInStorageTypeFromStore(StorageType.BACKROOM);
+                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.FLOOR));
+                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.WAREHOUSE));
+                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.RETURNSDEPOT));
+                    
+                    ArrayList<ProductBatch> expiredBatches = new ArrayList<ProductBatch>();
+                    for (ProductBatch currentBatch: batches) {
+                        if (currentBatch.getExpiry().before(Database.getCurrentDate())) {
+                            expiredBatches.add(currentBatch);
+                        }
+                    }
+                    
+                    // FIXME - finish off
+                    
+				    break;
 				case "Cancel":
 					throw new CancelException();
 			}

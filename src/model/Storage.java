@@ -56,6 +56,35 @@ public class Storage {
 		}
 	}
 	
+   public static boolean isInStorage(int batchId, int storageId) {
+        PreparedStatement stmt;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "SELECT * FROM seng2020.shelfbatch " +
+                       "WHERE batchId = ? " +
+                       "AND EXISTS (SELECT * " +
+                       "            FROM storageshelf " +
+                       "            WHERE shelfId = (SELECT shelfId " +
+                       "                             FROM shelfbatch " +
+                       "                             WHERE batchId = ?) AND storageId = ?)";
+        try{
+            stmt = con.prepareStatement(query);
+            stmt.setInt(1, batchId);
+            stmt.setInt(2, batchId);
+            stmt.setInt(3, storageId);
+            
+            ResultSet shelfId = stmt.executeQuery();
+            shelfId.next();
+            shelfId.getString("shelfId");
+        } catch(SQLException e) {
+            Database.printStackTrace(e);
+            return false;
+        }
+        
+        return true;
+    }
+	
 	private static void addShelfMapping(int storageId, int shelfId) throws SQLException {
 		PreparedStatement stmt = null;
 		Database db = PosSystem.getDatabase();
@@ -175,7 +204,7 @@ public class Storage {
 		
 		try {
 			String query = "SELECT DISTINCT storestorage.storageId FROM seng2020.storestorage, seng2020.storage " +
-					       "WHERE storestorage.storeId = ? AND storage.type = ?";
+					       "WHERE storestorage.storageId = storage.id AND storestorage.storeId = ? AND storage.type = ?";
 			PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
 			stmt.setInt(1, PosSystem.getStoreId());
 			stmt.setString(2, type.toString());

@@ -1,7 +1,9 @@
 package model;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.mysql.jdbc.Connection;
 
@@ -12,10 +14,10 @@ public class Supplier {
 	private int supplierId;
 	private String companyName;
 	private String address;
-	private String phone;
+	private int phone;
 	private String description;
 	
-	public Supplier(int supplierId, String companyName, String address, String phone, String description) {
+	public Supplier(int supplierId, String companyName, String address, int phone, String description) {
 		this.supplierId = supplierId;
 		this.companyName = companyName;
 		this.address = address;
@@ -35,7 +37,7 @@ public class Supplier {
 		stmt.setInt(1, this.supplierId);
 		stmt.setString(2, this.companyName);
 		stmt.setString(3, this.address);
-		stmt.setString(4, this.phone);
+		stmt.setInt(4, this.phone);
 		stmt.setString(5, this.description);
 		
 		db.executeQuery(stmt);
@@ -55,5 +57,6 @@ public class Supplier {
 
 	public void setCompanyName(String companyName) {
 		this.companyName = companyName;
-	}	
+	}
+	
 }
