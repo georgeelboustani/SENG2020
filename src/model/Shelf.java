@@ -130,7 +130,6 @@ public class Shelf {
 			}
 		}
 		
-		//TODO Optional: add constraint to ensure amount does not exceed max
 		if( Shelf.getShelfById(shelfId).getCurrentAmount() + batch.getAmount() > Shelf.getShelfById(shelfId).getMaxProducts() ){
 		    throw new SQLException();
 		}
@@ -223,7 +222,6 @@ public class Shelf {
 				shelves.add(new Integer(tables.getInt("shelfId")));
 			}
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

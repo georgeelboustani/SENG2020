@@ -56,6 +56,12 @@ public class Storage {
 		}
 	}
 	
+	public static void addShelfToStorage(int storageId, int maxProducts) throws SQLException {
+        Shelf newShelf = new Shelf(PosSystem.generateNextId(TableName.SHELF), maxProducts, 0);
+        newShelf.persist();
+        Storage.addShelfMapping(storageId,newShelf.getShelfId());
+    }
+	
    public static boolean isInStorage(int batchId, int storageId) {
         PreparedStatement stmt;
         Database db = PosSystem.getDatabase();
@@ -95,8 +101,8 @@ public class Storage {
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, storageId);
 		stmt.setInt(2, shelfId);
-		
-		stmt.execute();
+		System.out.println(stmt.toString());
+		db.executeQuery(stmt);
 	}
 	
 	public static void addBatchToStorageOrOrderDepot(int storageId,ProductBatch batch) throws SQLException {
@@ -152,9 +158,9 @@ public class Storage {
 						                                 oldBatch.getPrice(),
 						                                 amount);
 				
-				Shelf.addToShelf(toShelfId, newBatch);
 				oldBatch.setAmount(oldBatch.getAmount() - amount);
-				Shelf.setCurrentAmount(Shelf.getShelfById(fromShelfId).getCurrentAmount() - amount, fromShelfId);
+                Shelf.setCurrentAmount(Shelf.getShelfById(fromShelfId).getCurrentAmount() - amount, fromShelfId);
+				Shelf.addToShelf(toShelfId, newBatch);
 			}
 		}
 	}
@@ -231,7 +237,6 @@ public class Storage {
 			tables.next();
 			storage = new Storage(tables.getInt("id"),StorageType.valueOf(tables.getString("type")));
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

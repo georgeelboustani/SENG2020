@@ -137,7 +137,6 @@ public class Order {
             order = new Order(id, tables.getDate(3), tables.getDate(4), tables.getInt(5), tables.getInt(6), tables.getInt(7));
             order.orderDate = tables.getDate(2);
         } catch (Exception e) {
-            Database.printStackTrace(e);
             return null;
         }
         

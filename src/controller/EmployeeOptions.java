@@ -269,7 +269,7 @@ public class EmployeeOptions {
 					break;
 				case "Receive Order":
 				    
-				    orderId = CommandLine.getAnswerAsInt("Order Id");
+				    orderId = CommandLine.getAnswerAsInt("Order Id:");
 					while (Order.getOrderById(orderId) == null || Order.getOrderById(orderId).getReceivedDate() != null) {
 					    orderId = CommandLine.getAnswerAsInt("Enter the id of an order that has not been previously received:");
 					}
@@ -332,23 +332,27 @@ public class EmployeeOptions {
 					break;
 					
 				case "Transfer products":
-                    storages = Storage.getStorageFromStore(StorageType.BACKROOM);
-                    storages.addAll(Storage.getStorageFromStore(StorageType.FLOOR));
+                    storages = Storage.getStorageFromStore(StorageType.FLOOR);
+                    storages.addAll(Storage.getStorageFromStore(StorageType.BACKROOM));
                     storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
                     storages.addAll(Storage.getStorageFromStore(StorageType.RETURNSDEPOT));
                     storages.addAll(Storage.getStorageFromStore(StorageType.ORDERSDEPOT));
                     
                     System.out.println("Storage Id | Storage Type");
                     for (Integer id: storages) {
-                        System.out.println(id + "  " + Storage.getStorageById(id).getStorageType());
+                        if (Shelf.getShelvesFromStorage(id) != null && Shelf.getShelvesFromStorage(id).size() != 0) {
+                            System.out.println(id + "  " + Storage.getStorageById(id).getStorageType());
+                        }
                     }
                     int fromStorageId = CommandLine.getAnswerAsInt("From Storage Id:");
-                    while (Storage.getStorageById(fromStorageId) == null) {
+                    while (Storage.getStorageById(fromStorageId) == null 
+                            || Shelf.getShelvesFromStorage(fromStorageId) == null 
+                            || Shelf.getShelvesFromStorage(fromStorageId).size() == 0) {
                         fromStorageId = CommandLine.getAnswerAsInt("Please input a storage Id from the above list:");
                     }
                     
                     int toStorageId = CommandLine.getAnswerAsInt("To Storage Id:");
-                    while (Storage.getStorageById(fromStorageId) == null) {
+                    while (Storage.getStorageById(fromStorageId) == null || Shelf.getShelvesFromStorage(toStorageId) == null) {
                         toStorageId = CommandLine.getAnswerAsInt("Please input a storage Id from the above list:");
                     }
 				    
@@ -509,8 +513,27 @@ public class EmployeeOptions {
                     newStorage.persist();
                     break;
                 case "Add Shelf":
-                    // TODO - add shelf
-                    System.err.println("Unimplemented function");
+                    storages = Storage.getStorageFromStore(StorageType.FLOOR);
+                    storages.addAll(Storage.getStorageFromStore(StorageType.BACKROOM));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.RETURNSDEPOT));
+                    storages.addAll(Storage.getStorageFromStore(StorageType.ORDERSDEPOT));
+                    
+                    System.out.println("|-----------------------------------------------------------------------|");
+                    System.out.println("|\tStorage Id\t|\tStorage Type\t|\tNum Shelves\t|");
+                    System.out.println("|-----------------------------------------------------------------------|");
+                    for (Integer id: storages) {
+                        System.out.println("|\t" + id + "\t\t|\t" + Storage.getStorageById(id).getStorageType() + "   \t|\t" + Shelf.getShelvesFromStorage(id).size() + "\t\t|");
+                    }
+                    System.out.println("|-----------------------------------------------------------------------|");
+                    int storageId = CommandLine.getAnswerAsInt("Storage Id:");
+                  
+                    while (Storage.getStorageById(storageId) == null) {
+                        fromStorageId = CommandLine.getAnswerAsInt("Please input a storage Id from the above list:");
+                    }
+                    
+                    int maxProducts = CommandLine.getAnswerAsInt("Max products:");
+                    Storage.addShelfToStorage(storageId, maxProducts);
                     break;
 				case "Report Storages":
 				    storages = Storage.getStorageFromStore(StorageType.BACKROOM);

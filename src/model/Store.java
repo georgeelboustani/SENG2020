@@ -27,15 +27,10 @@ public class Store {
 		this.storeId = id;
 		
 		floorspace = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.FLOOR);
-		floorspace.persist();
-		backroom = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.BACKROOM);
-		backroom.persist();
-		warehouse = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.WAREHOUSE);
-		warehouse.persist();
-		returnsdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.RETURNSDEPOT);
-		returnsdepot.persist();
-		orderdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.ORDERSDEPOT);
-		orderdepot.persist();
+		backroom = new Storage(PosSystem.generateNextId(TableName.STORAGE) + 1,StorageType.BACKROOM);
+		warehouse = new Storage(PosSystem.generateNextId(TableName.STORAGE) + 2,StorageType.WAREHOUSE);
+		returnsdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE) + 3,StorageType.RETURNSDEPOT);
+		orderdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE) + 4,StorageType.ORDERSDEPOT);
 	}
 	
 	public void persist() throws SQLException {
@@ -50,6 +45,12 @@ public class Store {
 		stmt.setInt(1, this.storeId);
 		
 		db.executeQuery(stmt);
+		
+		floorspace.persist();
+        backroom.persist();
+        warehouse.persist();
+        returnsdepot.persist();
+        orderdepot.persist();
 		
 		persistStorageMapping(floorspace);
 		persistStorageMapping(backroom);
