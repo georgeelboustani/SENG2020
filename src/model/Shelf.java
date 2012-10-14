@@ -56,6 +56,21 @@ public class Shelf {
 		return currentAmount;
 	}
 	
+	public static void removeShelfBatchMapping(int shelfId, int batchId)  throws SQLException {
+	    PreparedStatement stmt = null;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "DELETE FROM " + db.getDbName() + ".shelfbatch " +
+                "WHERE shelfId = ? AND batchId = ?";
+        
+        stmt = con.prepareStatement(query);
+        stmt.setInt(1, shelfId);
+        stmt.setInt(2, batchId);
+        
+        db.executeQuery(stmt);
+	}
+	
 	public static void setCurrentAmount(int amount, int shelfId) throws SQLException {
 		PreparedStatement stmt = null;
 		Database db = PosSystem.getDatabase();
@@ -249,4 +264,18 @@ public class Shelf {
 		
 		return shelf;
 	}
+
+    public static Integer getShelfIdByBatchId(int batchId) {
+        Integer shelfId = null;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.shelfbatch WHERE batchId = " + batchId).executeQuery();
+            tables.next();
+            shelfId = tables.getInt("shelfId");
+        } catch (SQLException e) {
+            return null;
+        }
+        
+        return shelfId;
+    }
 }

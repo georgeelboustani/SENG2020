@@ -41,14 +41,15 @@ public class CustomerOptions {
 		}
 
 		int option = CommandLine.getUserOption(questions);
-
 		try {
+		    CommandLine.clearConsole();
 			customerQuestionHandlerLevelOne(questions, option);
 		} catch (CancelException e){
 			
 		} catch (LogoutException e) {
 			
 		}
+		CommandLine.clearConsole();
 	}
 	
 	public static void customerQuestionHandlerLevelOne(ArrayList<String> questions, int option) throws LogoutException, CancelException {
@@ -110,7 +111,7 @@ public class CustomerOptions {
 		
 		if (goNextLevel) {
 			int newOption = CommandLine.getUserOption(newQuestions);
-			
+			CommandLine.clearConsole();
 			try {
 				customerQuestionHandlerLevelTwo(newQuestions,newOption);
 			} catch (CancelException e){
@@ -147,6 +148,9 @@ public class CustomerOptions {
 					for (String key: products.keySet()){
 						System.out.println(StringUtils.capitalize(key) + ": " + products.get(key));
 					}
+					
+					while (!CommandLine.getYesOrNo("Return to menu?")) {
+					}
 					break;
 				case "Search by Name":
 					String name = CommandLine.getAnswerAsString("Name: ");
@@ -157,6 +161,8 @@ public class CustomerOptions {
 							System.out.println(ProductType.getProductTypeByName(key).getDescription());
 						}
 					}
+					while (!CommandLine.getYesOrNo("Return to menu?")) {
+                    }
 					break;
 				case "List by Category":
 					String categoryName = CommandLine.getAnswerAsString("Enter a category name:").toLowerCase();
@@ -167,6 +173,8 @@ public class CustomerOptions {
 							System.out.println("(" + ProductType.getProductTypeByName(key).getCategoryName() + ") " + StringUtils.capitalize(key) + ": " + products1.get(key));
 						}
 					}
+					while (!CommandLine.getYesOrNo("Return to menu?")) {
+                    }
 					break;
 			}
 		} catch (CancelException e) {

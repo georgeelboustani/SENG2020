@@ -210,11 +210,16 @@ public class Employee {
             stmt.setString(2, type.toString());
             
             ResultSet tables = stmt.executeQuery();
+            boolean empty = true;
             while(tables.next()) {
                 employees.add(tables.getInt(1));
+                empty = false;
+            }
+
+            if (empty) {
+                return null;
             }
         } catch (SQLException e) {
-            Database.printStackTrace(e);
             return null;
         }
         

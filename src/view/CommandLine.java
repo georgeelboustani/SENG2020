@@ -12,6 +12,12 @@ import exception.CancelException;
 
 public class CommandLine {
 	
+    public static void clearConsole() {
+        for (int i = 0; i < 50; i++){
+            System.out.println("");
+        }
+    }
+    
 	public static void printList(ArrayList<String> list) {
 		for (String item: list) {
 			System.out.println(item);

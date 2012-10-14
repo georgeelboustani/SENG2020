@@ -86,7 +86,6 @@ public class ProductType {
 			tables.next();
 			type = new ProductType(tables.getInt("typeId"),tables.getString("name"),tables.getString("description"),tables.getInt("categoryId"));
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

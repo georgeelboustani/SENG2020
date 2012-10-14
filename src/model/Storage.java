@@ -95,6 +95,8 @@ public class Storage {
     	stmt = con.prepareStatement(query);
 		stmt.setInt(1, storageId);
 		stmt.setInt(2, shelfId);
+		
+		stmt.execute();
 	}
 	
 	public static void addBatchToStorageOrOrderDepot(int storageId,ProductBatch batch) throws SQLException {

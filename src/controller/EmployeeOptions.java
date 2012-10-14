@@ -54,12 +54,14 @@ public class EmployeeOptions {
 		int option = CommandLine.getUserOption(questions);
 		
 		try {
+		    CommandLine.clearConsole();
 			employeeQuestionHandlerLevelOne(questions,option);
 		} catch (CancelException e) {
 			
 		} catch (LogoutException e) {
 			
 		}
+		CommandLine.clearConsole();
 	}
 
 	public static void employeeQuestionHandlerLevelOne(ArrayList<String> questions, int option) throws LogoutException, CancelException {
@@ -112,6 +114,7 @@ public class EmployeeOptions {
 			    newQuestions.add("Report Storages");
 				newQuestions.add("Report Employees");
 				newQuestions.add("Report Products");
+				newQuestions.add("Report Orders");
 				break;
 			case "Log out":
 				Main.requestLogout();
@@ -119,12 +122,14 @@ public class EmployeeOptions {
 		}
 		
 		int newOption = CommandLine.getUserOption(newQuestions);
-		
 		try {
+		    CommandLine.clearConsole();
 			employeeQuestionHandlerLevelTwo(newQuestions,newOption);
 		} catch (CancelException e){
+		    CommandLine.clearConsole();
 			employeeQuestionHandlerLevelOne(questions,option);
 		}
+		CommandLine.clearConsole();
 	}
 
 	//TODO - ASK FOR REGID
@@ -255,10 +260,15 @@ public class EmployeeOptions {
 					int supplierId = CommandLine.getAnswerAsInt("Supplier Id:");
 					
 					Order newOrder = new Order(orderId,orderArrival,receivedDate,productTypeId,quantity,supplierId);
-					newOrder.persist();
+					try {
+					    newOrder.persist();
+					} catch (Exception e) {
+					    System.err.println("Error while creating order");
+					}
 					
 					break;
 				case "Receive Order":
+				    
 				    orderId = CommandLine.getAnswerAsInt("Order Id");
 					while (Order.getOrderById(orderId) == null || Order.getOrderById(orderId).getReceivedDate() != null) {
 					    orderId = CommandLine.getAnswerAsInt("Enter the id of an order that has not been previously received:");
@@ -473,6 +483,10 @@ public class EmployeeOptions {
 					// TODO - Remove supplier
 					System.err.println("Unimplemented function");
 					break;
+				case "Report Orders":
+				    // TODO - Show orders
+				    System.err.println("Unimplemented function");
+				    break;
 				case "Add Storage":
 				    ArrayList<String> sto = new ArrayList<String>();
 				    sto.add(StorageType.values()[0].toString());
@@ -493,6 +507,10 @@ public class EmployeeOptions {
                         
                     Storage newStorage = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.valueOf(storType));
                     newStorage.persist();
+                    break;
+                case "Add Shelf":
+                    // TODO - add shelf
+                    System.err.println("Unimplemented function");
                     break;
 				case "Report Storages":
 				    storages = Storage.getStorageFromStore(StorageType.BACKROOM);
@@ -521,15 +539,9 @@ public class EmployeeOptions {
 					// TODO - report products
 					System.err.println("Unimplemented function");
 					break;
-				case "Add Shelf":
-				    // TODO - add shelf
-                    System.err.println("Unimplemented function");
-				    break;
 				case "Check Expired products":
-				    // TODO - expire products
-                    System.err.println("Unimplemented function");
-                    ArrayList<ProductBatch> batches = Storage.getProductBatchesInStorageTypeFromStore(StorageType.BACKROOM);
-                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.FLOOR));
+                    ArrayList<ProductBatch> batches = Storage.getProductBatchesInStorageTypeFromStore(StorageType.FLOOR);
+                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.BACKROOM));
                     batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.WAREHOUSE));
                     batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.RETURNSDEPOT));
                     
@@ -540,7 +552,56 @@ public class EmployeeOptions {
                         }
                     }
                     
-                    // FIXME - finish off
+                    ArrayList<String> expiredBatchesString = new ArrayList<String>();
+                    for (ProductBatch currentBatch: expiredBatches) {
+                        expiredBatchesString.add(currentBatch.getBatchId() + "  " + currentBatch.getProductType() + "(" + currentBatch.getAmount()+")  " + currentBatch.getExpiry());
+                    }
+                    
+                    System.out.println("The following products are expired:");
+                    CommandLine.printList(expiredBatchesString);
+                    
+                    if (CommandLine.getYesOrNo("Remove all the products?")) {
+                        for (ProductBatch expiredBatch: expiredBatches) {
+                            Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatch.getBatchId());
+                            if (expiredShelfId != null) {
+                                Shelf s1 = Shelf.getShelfById(expiredShelfId);
+                                
+                                Shelf.setCurrentAmount(s1.getCurrentAmount() - expiredBatch.getAmount(), expiredShelfId);
+                                Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatch.getBatchId());
+                                expiredBatch.delete();
+                            } else {
+                                System.err.println("Error while removing batch with id " + expiredBatch.getBatchId() + " and shelf batch mapping");
+                            }
+                        }
+                    } else if (CommandLine.getYesOrNo("Remove a single expired product?")){
+                        int expiredBatchId = CommandLine.getAnswerAsInt("Batch Id:");
+                        
+                        boolean validBatch = false;
+                        while (!validBatch) {
+                            for (ProductBatch b: expiredBatches) {
+                                if (expiredBatchId == b.getBatchId()) {
+                                    validBatch = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!validBatch) {
+                                expiredBatchId = CommandLine.getAnswerAsInt("Please input a valid batch Id from the list above:");
+                            }
+                        }
+                        
+                        Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatchId);
+                        if (expiredShelfId != null) {
+                            Shelf s1 = Shelf.getShelfById(expiredShelfId);
+                            ProductBatch b = ProductBatch.getBatchById(expiredBatchId);
+                            
+                            Shelf.setCurrentAmount(s1.getCurrentAmount() - b.getAmount(), expiredShelfId);
+                            Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatchId);
+                            b.delete();
+                        } else {
+                            System.err.println("Error while removing batch and shelf batch mapping");
+                        }
+                    }
                     
 				    break;
 				case "Cancel":

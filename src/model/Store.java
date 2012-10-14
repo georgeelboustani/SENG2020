@@ -27,10 +27,15 @@ public class Store {
 		this.storeId = id;
 		
 		floorspace = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.FLOOR);
+		floorspace.persist();
 		backroom = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.BACKROOM);
+		backroom.persist();
 		warehouse = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.WAREHOUSE);
+		warehouse.persist();
 		returnsdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.RETURNSDEPOT);
+		returnsdepot.persist();
 		orderdepot = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.ORDERSDEPOT);
+		orderdepot.persist();
 	}
 	
 	public void persist() throws SQLException {
@@ -53,10 +58,11 @@ public class Store {
 	    persistStorageMapping(orderdepot);
 	}
 	
-	public void addEmployee(String firstName, String lastName, EmployeeType type,  String password) throws SQLException {
+	public Employee addEmployee(String firstName, String lastName, EmployeeType type,  String password) throws SQLException {
 		Employee emp = new Employee(PosSystem.generateNextId(TableName.EMPLOYEE),firstName,lastName,type,password);
 		emp.persist();		
 		persistEmployeeMapping(emp);
+		return emp;
 	}
 	
 	public Member addMember(String firstName, String lastName, String password, Date signup) throws SQLException {

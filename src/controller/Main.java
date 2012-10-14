@@ -30,6 +30,7 @@ public class Main {
 		while (PosSystem.isInitialised()) {
 			if (!activeUser) {
 				activeUser = requestLogin();
+				CommandLine.clearConsole();
 			}
 			
 			try {
@@ -47,6 +48,7 @@ public class Main {
 			}
 			
 			PosSystem.refreshConnection();
+			CommandLine.clearConsole();
 		}
 	}
 	
@@ -75,6 +77,7 @@ public class Main {
 				}
 			}
 		} catch (CancelException e) {
+		    CommandLine.clearConsole();
 			logInSuccessful = requestLogin();
 		}
 		

@@ -105,7 +105,7 @@ public class ProductBatch {
 			PosSystem.getDatabase().executeQuery(stmt);
 		} catch (Exception e) {
 		    Database.printStackTrace(e);
-			System.err.println("Failed to delete");
+			System.err.println("Failed to delete batch");
 		}
 
 	}

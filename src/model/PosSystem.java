@@ -28,6 +28,7 @@ public class PosSystem {
 		if (Store.getStoreById(storeId) == null) {
 //			initialisationSuccessful = false;
 //			throw new InvalidIdException();
+		    initialisationSuccessful = true;
 		    PosSystem.storeId = storeId;
 		    Store newStore = new Store(storeId);
 		    newStore.persist();
@@ -40,6 +41,7 @@ public class PosSystem {
 		if (Register.getRegisterById(registerId) == null) {
 //            initialisationSuccessful = false;
 //            throw new InvalidIdException();
+		      initialisationSuccessful = true;
 	          PosSystem.registerId = registerId;
 	          Register newRegister = new Register(registerId,0,null);
 	          newRegister.persist();
@@ -48,8 +50,12 @@ public class PosSystem {
             PosSystem.registerId = registerId;
             initialisationSuccessful = true;
         }
+		
+		if (Employee.getEmployeesFromStore(EmployeeType.ADMIN) == null) {
+		    Employee firstAdmin = Store.getStoreById(storeId).addEmployee("first", "admin", EmployeeType.ADMIN, "pass");
+		    System.out.println("First Admin has been created with id " + firstAdmin.getEmployeeId());
+		}
 	}
-	
 	
 	public static int addStore() throws SQLException {
 		Store newStore = new Store(PosSystem.generateNextId(TableName.STORE));
