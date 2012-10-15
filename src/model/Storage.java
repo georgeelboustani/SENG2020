@@ -151,7 +151,7 @@ public class Storage {
 			
 			ProductBatch oldBatch = ProductBatch.getBatchById(batchId);
 			if (oldBatch.getAmount() >= amount) {
-				// TODO - Check if toShelf can fit this many of this product
+				// FIXME - Check if toShelf can fit this many of this product
 				ProductBatch newBatch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH),
 						                                 oldBatch.getProductType(),
 						                                 oldBatch.getExpiry(),
@@ -161,6 +161,9 @@ public class Storage {
 				oldBatch.setAmount(oldBatch.getAmount() - amount);
                 Shelf.setCurrentAmount(Shelf.getShelfById(fromShelfId).getCurrentAmount() - amount, fromShelfId);
 				Shelf.addToShelf(toShelfId, newBatch);
+				
+				// FIXME - if the batch in the from shelf now has 0 quantity, remove it
+				
 			}
 		}
 	}

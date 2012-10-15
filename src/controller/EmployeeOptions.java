@@ -150,6 +150,7 @@ public class EmployeeOptions {
 		int orderId;
 		ProductBatch batch;
 		ArrayList<Integer> storages;
+		ProductType productType;
 		try {
 			switch (question) {
 				case "Change Employee First Name":
@@ -216,7 +217,7 @@ public class EmployeeOptions {
 				    String typeName = CommandLine.getAnswerAsString("Product Type:",ProductType.getAllAvailableProductTypes());
 					
 					
-					ProductType productType = ProductType.getProductTypeByName(typeName);
+					productType = ProductType.getProductTypeByName(typeName);
 					if (changeAll) {
 					    double price = CommandLine.getAnswerAsInt("New Price: ");
 					    s.changeProductPrice(productType.getTypeId(),price);
@@ -488,8 +489,7 @@ public class EmployeeOptions {
 					System.err.println("Unimplemented function");
 					break;
 				case "Report Orders":
-				    // TODO - Show orders
-				    System.err.println("Unimplemented function");
+				    reportOrders();
 				    break;
 				case "Add Storage":
 				    ArrayList<String> sto = new ArrayList<String>();
@@ -563,69 +563,7 @@ public class EmployeeOptions {
 					System.err.println("Unimplemented function");
 					break;
 				case "Check Expired products":
-                    ArrayList<ProductBatch> batches = Storage.getProductBatchesInStorageTypeFromStore(StorageType.FLOOR);
-                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.BACKROOM));
-                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.WAREHOUSE));
-                    batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.RETURNSDEPOT));
-                    
-                    ArrayList<ProductBatch> expiredBatches = new ArrayList<ProductBatch>();
-                    for (ProductBatch currentBatch: batches) {
-                        if (currentBatch.getExpiry().before(Database.getCurrentDate())) {
-                            expiredBatches.add(currentBatch);
-                        }
-                    }
-                    
-                    ArrayList<String> expiredBatchesString = new ArrayList<String>();
-                    for (ProductBatch currentBatch: expiredBatches) {
-                        expiredBatchesString.add(currentBatch.getBatchId() + "  " + currentBatch.getProductType() + "(" + currentBatch.getAmount()+")  " + currentBatch.getExpiry());
-                    }
-                    
-                    System.out.println("The following products are expired:");
-                    CommandLine.printList(expiredBatchesString);
-                    
-                    if (CommandLine.getYesOrNo("Remove all the products?")) {
-                        for (ProductBatch expiredBatch: expiredBatches) {
-                            Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatch.getBatchId());
-                            if (expiredShelfId != null) {
-                                Shelf s1 = Shelf.getShelfById(expiredShelfId);
-                                
-                                Shelf.setCurrentAmount(s1.getCurrentAmount() - expiredBatch.getAmount(), expiredShelfId);
-                                Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatch.getBatchId());
-                                expiredBatch.delete();
-                            } else {
-                                System.err.println("Error while removing batch with id " + expiredBatch.getBatchId() + " and shelf batch mapping");
-                            }
-                        }
-                    } else if (CommandLine.getYesOrNo("Remove a single expired product?")){
-                        int expiredBatchId = CommandLine.getAnswerAsInt("Batch Id:");
-                        
-                        boolean validBatch = false;
-                        while (!validBatch) {
-                            for (ProductBatch b: expiredBatches) {
-                                if (expiredBatchId == b.getBatchId()) {
-                                    validBatch = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (!validBatch) {
-                                expiredBatchId = CommandLine.getAnswerAsInt("Please input a valid batch Id from the list above:");
-                            }
-                        }
-                        
-                        Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatchId);
-                        if (expiredShelfId != null) {
-                            Shelf s1 = Shelf.getShelfById(expiredShelfId);
-                            ProductBatch b = ProductBatch.getBatchById(expiredBatchId);
-                            
-                            Shelf.setCurrentAmount(s1.getCurrentAmount() - b.getAmount(), expiredShelfId);
-                            Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatchId);
-                            b.delete();
-                        } else {
-                            System.err.println("Error while removing batch and shelf batch mapping");
-                        }
-                    }
-                    
+				    checkExpiredProducts();
 				    break;
 				case "Cancel":
 					throw new CancelException();
@@ -637,10 +575,130 @@ public class EmployeeOptions {
 		    Database.printStackTrace(e);
 			employeeQuestionHandlerLevelTwo(questions,option);
 		} catch (CancelException e) {
-			System.out.println("Cancelled out of level two");
 			throw e;
 		}
 	}
+
+    private static void checkExpiredProducts() throws SQLException,
+            CancelException {
+        ArrayList<ProductBatch> batches = Storage.getProductBatchesInStorageTypeFromStore(StorageType.FLOOR);
+        batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.BACKROOM));
+        batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.WAREHOUSE));
+        batches.addAll(Storage.getProductBatchesInStorageTypeFromStore(StorageType.RETURNSDEPOT));
+        
+        ArrayList<ProductBatch> expiredBatches = new ArrayList<ProductBatch>();
+        for (ProductBatch currentBatch: batches) {
+            if (currentBatch.getExpiry().before(Database.getCurrentDate())) {
+                expiredBatches.add(currentBatch);
+            }
+        }
+        
+        ArrayList<String> expiredBatchesString = new ArrayList<String>();
+        expiredBatchesString.add("|---------------------------------------------------------------------------------------|");
+        expiredBatchesString.add("|\tBatch Id\t|\tProduct Type\t|\tAmount\t|\tExpiry Date\t|");
+        expiredBatchesString.add("|---------------------------------------------------------------------------------------|");
+        for (ProductBatch currentBatch: expiredBatches) {
+            expiredBatchesString.add("|\t" + currentBatch.getBatchId() + "\t\t|\t" + currentBatch.getProductType() + "      \t|\t" + currentBatch.getAmount()+ "   \t|\t" + currentBatch.getExpiry() + "\t|");
+        }
+        expiredBatchesString.add("|---------------------------------------------------------------------------------------|");
+        
+        if (expiredBatchesString.size() == 0) {
+            System.out.println("No expired products were found in the system");
+        } else {
+            System.out.println("The following products are expired:");
+            CommandLine.printList(expiredBatchesString);
+            
+            if (CommandLine.getYesOrNo("Remove all the products?")) {
+                for (ProductBatch expiredBatch: expiredBatches) {
+                    Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatch.getBatchId());
+                    if (expiredShelfId != null) {
+                        Shelf s1 = Shelf.getShelfById(expiredShelfId);
+                        
+                        Shelf.setCurrentAmount(s1.getCurrentAmount() - expiredBatch.getAmount(), expiredShelfId);
+                        Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatch.getBatchId());
+                        expiredBatch.delete();
+                    } else {
+                        System.err.println("Error while removing batch with id " + expiredBatch.getBatchId() + " and shelf batch mapping");
+                    }
+                }
+            } else if (CommandLine.getYesOrNo("Remove a single expired product?")){
+                int expiredBatchId = CommandLine.getAnswerAsInt("Batch Id:");
+                
+                boolean validBatch = false;
+                while (!validBatch) {
+                    for (ProductBatch b: expiredBatches) {
+                        if (expiredBatchId == b.getBatchId()) {
+                            validBatch = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!validBatch) {
+                        expiredBatchId = CommandLine.getAnswerAsInt("Please input a valid batch Id from the list above:");
+                    }
+                }
+                
+                Integer expiredShelfId = Shelf.getShelfIdByBatchId(expiredBatchId);
+                if (expiredShelfId != null) {
+                    Shelf s1 = Shelf.getShelfById(expiredShelfId);
+                    ProductBatch b = ProductBatch.getBatchById(expiredBatchId);
+                    
+                    Shelf.setCurrentAmount(s1.getCurrentAmount() - b.getAmount(), expiredShelfId);
+                    Shelf.removeShelfBatchMapping(expiredShelfId, expiredBatchId);
+                    b.delete();
+                } else {
+                    System.err.println("Error while removing batch and shelf batch mapping");
+                }
+            }
+        }
+        
+        CommandLine.getAnswerAsString("Type anything to continue:");
+    }
+
+    private static void reportOrders() throws CancelException {
+        ProductType productType;
+        ArrayList<Integer> orders = new ArrayList<Integer>();
+        if (CommandLine.getYesOrNo("Show all pending orders?")) {
+            for (String type: ProductType.getAllAvailableProductTypes()) {
+                ArrayList<Integer> tempOrders = Order.getAllOrders(ProductType.getProductTypeByName(type));
+                if (tempOrders!= null) {
+                    orders.addAll(tempOrders);
+                }
+            }
+            
+            System.out.println("|---------------------------------------------------------------------------------------|");
+            System.out.println("|\tOrder Id\t|\tProduct Type\t|\tAmount\t|\tArrival Date\t|");
+            System.out.println("|---------------------------------------------------------------------------------------|");
+            for (Integer id: orders) {
+                System.out.println("|\t" + id + "\t\t|\t" + ProductType.getProductTypeById(Order.getOrderById(id).getProductType()).getType() + "      \t|\t" + Order.getOrderById(id).getQuantity()+ "   \t|\t" + Order.getOrderById(id).getOrderArrival() + "\t|");
+            }
+            System.out.println("|---------------------------------------------------------------------------------------|");
+            
+            CommandLine.getAnswerAsString("Type anything to continue");
+        } else {
+            CommandLine.clearConsole();
+            boolean checkAnotherProduct = true;
+            while (checkAnotherProduct) {
+                String type = CommandLine.getAnswerAsString("Choose a product type to report on:",ProductType.getAllAvailableProductTypes());
+                productType = ProductType.getProductTypeByName(type);
+                ArrayList<Integer> tempOrders = Order.getAllOrders(productType);
+                if (tempOrders != null) {
+                    orders = tempOrders;
+                }
+                
+                System.out.println("|---------------------------------------------------------------|");
+                System.out.println("|\tOrder Id\t|\tAmount\t|\tArrival Date\t|");
+                System.out.println("|---------------------------------------------------------------|");
+                
+                for (Integer id: orders) {
+                    System.out.println("|\t" + id + "\t\t|\t" + Order.getOrderById(id).getQuantity() + "   \t|\t" + Order.getOrderById(id).getOrderArrival() + "  \t|");
+                }
+                System.out.println("|---------------------------------------------------------------|");
+                
+                checkAnotherProduct = CommandLine.getYesOrNo("Would you like to check another product?");
+            }
+        }
+    }
 
 	private static void handleSale() throws NumberFormatException, SQLException, CancelException {
 		ArrayList<ProductBatch> oldBatches = new ArrayList<ProductBatch>();

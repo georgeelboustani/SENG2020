@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.mysql.jdbc.Connection;
@@ -127,6 +128,34 @@ public class Order {
 	public int getSupplierId() {
 		return supplierId;
 	}
+	
+	public static ArrayList<Integer> getAllOrders(ProductType type) {
+        ArrayList<Integer> orders = new ArrayList<Integer>();
+        Connection con = PosSystem.getConnection();
+        
+        try {
+            String query = "SELECT id FROM seng2020.order WHERE productTypeId = " + type.getTypeId();
+            
+            PreparedStatement stmt = con.prepareStatement(query);
+
+            ResultSet tables = stmt.executeQuery();
+            while (tables.next()) {
+                Order order = getOrderById(tables.getInt(1));
+                if (order.receivedDate == null) {
+                    orders.add(order.getOrderId());
+                }
+            }
+            
+            if (orders.size() == 0) {
+                return null;
+            }
+        } catch (SQLException e) {
+            Database.printStackTrace(e);
+            return null;
+        }
+        
+        return orders;
+    }
 	
 	public static Order getOrderById(int id) {
 	    Order order = null;
