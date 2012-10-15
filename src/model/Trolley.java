@@ -21,26 +21,48 @@ public class Trolley {
 		return products.iterator();
 	}
 	
-	/**
-	 * @param type
-	 * @param expiry
-	 * @param amount
-	 * @return - returns true if succesfully remove products. Will return
-	 *           false if no product basket which satisifies the parameters
-	 *           exists in the basket, including when the amount given
-	 *           is too big.
-	 */
-	public boolean removeProducts(ProductType type, Date expiry, int amount) {
-		boolean valid = false;
-		
+	public ArrayList<ProductBatch> getProducts() {
+	    return this.products;
+	}
+	
+	public boolean contains(ProductType type, Date expiry) {
+	    boolean exists = false;
+        for (ProductBatch batch: products) {
+            if (batch.getProductType().equals(type.getType())) {
+                if (batch.getExpiry().equals(expiry)) {
+                    exists = true;
+                }
+            }
+            
+            if (exists) {
+                break;
+            }
+        }
+        
+        return exists;
+	}
+	
+	public void removeProducts(ProductType type, Date expiry, int amount) {
+	    boolean exists = false;
+	    ProductBatch tempBatch = null;
 		for (ProductBatch batch: products) {
-			if (batch.getProductType().equals(type) && batch.getExpiry().equals(expiry)) {
-				valid = batch.removeProducts(amount);
-				break;
-			}
+		    if (batch.getProductType().equals(type.getType())) {
+                if (batch.getExpiry().equals(expiry)) {
+                    exists = true;
+                    batch.setAmount(batch.getAmount() - amount);
+                    tempBatch = batch;
+                }
+            }
+		    
+		    if (exists) {
+                break;
+            }
 		}
 		
-		return valid;
+		if (exists && tempBatch.getAmount() == 0) {
+		    products.remove(tempBatch);
+		    tempBatch.delete();
+		}
 	}
 	
 	/** 
@@ -54,8 +76,11 @@ public class Trolley {
 				if (batch.getExpiry().equals(productBatch.getExpiry())) {
 					exists = true;
 					batch.setAmount(batch.getAmount() + productBatch.getAmount());
-					break;
 				}
+			}
+			
+			if (exists) {
+			    break;
 			}
 		}
 		if (!exists) {

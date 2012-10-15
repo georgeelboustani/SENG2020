@@ -151,7 +151,6 @@ public class Storage {
 			
 			ProductBatch oldBatch = ProductBatch.getBatchById(batchId);
 			if (oldBatch.getAmount() >= amount) {
-				// FIXME - Check if toShelf can fit this many of this product
 				ProductBatch newBatch = new ProductBatch(PosSystem.generateNextId(TableName.PRODUCTBATCH),
 						                                 oldBatch.getProductType(),
 						                                 oldBatch.getExpiry(),
@@ -162,8 +161,10 @@ public class Storage {
                 Shelf.setCurrentAmount(Shelf.getShelfById(fromShelfId).getCurrentAmount() - amount, fromShelfId);
 				Shelf.addToShelf(toShelfId, newBatch);
 				
-				// FIXME - if the batch in the from shelf now has 0 quantity, remove it
-				
+				if (oldBatch.getAmount() == 0) {
+				    Shelf.removeShelfBatchMapping(fromShelfId, batchId);
+				    oldBatch.delete();
+				}
 			}
 		}
 	}
@@ -189,8 +190,6 @@ public class Storage {
 		return products;
 	}
 	
-	//TODO threshold management
-	
 	/**
 	 * @return hash map of product type to amount available on the floor
 	 */
@@ -202,7 +201,6 @@ public class Storage {
 		
 		ArrayList<ProductBatch> batches = getProductBatchesInStorageTypeFromStore(StorageType.FLOOR);
 		for (ProductBatch batch: batches) {
-			//TODO: Fix product type id/name confusion up
 			String key = ProductType.getProductTypeById(Integer.parseInt(batch.getProductType())).getType();
 			products.put(key, products.get(key) + batch.getAmount());
 		}

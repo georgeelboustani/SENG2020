@@ -79,7 +79,6 @@ public class CommandLine {
     }
 	*/
 	public static String getAnswerAsString(String question, ArrayList<String> types) throws CancelException {
-		// TODO - print off the types for the user to choose from
 		System.out.println(question);
 		int selection = getUserOption(types);
 		return types.get(selection - 1);
@@ -154,7 +153,6 @@ public class CommandLine {
 	 * @return true if yes, false if no.
 	 */
 	public static boolean getYesOrNo(String question) {
-		// TODO - add cancel option
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		boolean answer;
 		String input;

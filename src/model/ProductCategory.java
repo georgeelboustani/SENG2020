@@ -3,6 +3,7 @@ package model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import com.mysql.jdbc.Connection;
 
@@ -25,6 +26,26 @@ public class ProductCategory {
 	public String getCategoryName() {
 		return this.categoryName;
 	}
+	
+   public static ArrayList<String> getAllAvailableCategories() {
+        ArrayList<String> categories = new ArrayList<String>();
+        Connection con = PosSystem.getConnection();
+        
+        try {
+            String query = "SELECT * FROM seng2020.productcategory";
+            
+            PreparedStatement stmt = con.prepareStatement(query);
+            
+            ResultSet tables = stmt.executeQuery();
+            while (tables.next()) {
+                categories.add(tables.getString("categoryName"));
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        
+        return categories;
+    }
 	
 	public static void addProductCategory(int id, String category) {
 		try {	

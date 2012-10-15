@@ -65,10 +65,6 @@ public class Register {
 		return currentEmployee;
 	}
 
-	public void balanceTill() {
-		//TODO balance til
-	}
-
 	public double getBalance() {
 		return balance;
 	}
@@ -84,4 +80,22 @@ public class Register {
 	public void setId(int id){
        registerId = id;
 	}
+
+    public void addLog(int employeeId, String description) throws SQLException {
+        PreparedStatement stmt = null;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "INSERT into " + db.getDbName() + ".logentry (`logId`,`date`,`employeeId`,`description`,`registerId`) " +
+                "VALUES (?,?,?,?,?)";
+        
+        stmt = con.prepareStatement(query);
+        stmt.setInt(1, PosSystem.generateNextId(TableName.LOGENTRY));
+        stmt.setDate(2,Database.getCurrentDate());
+        stmt.setInt(3, employeeId);
+        stmt.setString(4,description);
+        stmt.setInt(5, this.registerId);
+            
+        db.executeQuery(stmt);
+    }
 }

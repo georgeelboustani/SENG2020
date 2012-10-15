@@ -40,9 +40,7 @@ public class Database {
 	}
 	
 
-	//TODO: Fix clear data properly. and disable foreign keys then enable
 	public void clearData() {
-		
 		try {
 			ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT TABLE_NAME FROM (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'seng2020') AS a").executeQuery();
 			

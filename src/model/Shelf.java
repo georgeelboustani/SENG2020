@@ -15,7 +15,6 @@ public class Shelf {
 	private int maxProducts;
 	private int currentAmount;
 
-	//TODO make sure that when adding to shelf, current amount increases and never exceeds storage/shelf max
 	public Shelf(int id, int maxProducts,int currentAmount) {
 		super();
 		this.id = id;
@@ -39,9 +38,58 @@ public class Shelf {
 		db.executeQuery(stmt);
 	}
 	
-	// TODO - save category in system
-	public void assignCategory(ProductCategory category) {
-		
+	public static boolean hasCategory(int shelfId, int categoryId) {
+	    PreparedStatement stmt;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "SELECT * FROM " + db.getDbName() + ".shelfcategory WHERE shelfId = ? AND categoryId = ?";
+        try{
+            stmt = con.prepareStatement(query);
+            stmt.setInt(1, shelfId);
+            stmt.setInt(2, categoryId);
+            
+            ResultSet shelfSet = stmt.executeQuery();
+            shelfSet.next();
+            shelfSet.getString("shelfId");
+        }catch(SQLException e){
+            return false;
+        }
+        return true;
+	}
+	
+	public static String associatedCategories (int shelfId) {
+       String categories = "";
+        
+        try {
+            String query = "SELECT batchId FROM seng2020.shelfbatch WHERE shelfId = ?";
+            PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+            stmt.setInt(1, shelfId);
+            
+            ResultSet tables = stmt.executeQuery();
+            while(tables.next()) {
+                categories = categories + " " + ProductCategory.getProductCategoryById(tables.getInt("categoryId")).getCategoryName();
+            }
+        } catch (SQLException e) {
+            return categories;
+        }
+        
+        return categories;
+	}
+	
+	public void assignCategory(ProductCategory category) throws SQLException {
+	    PreparedStatement stmt = null;
+        Database db = PosSystem.getDatabase();
+        Connection con = PosSystem.getConnection();
+        
+        String query = "INSERT into " + db.getDbName() + ".shelfcategory (`shelfId`,`categoryId`) " +
+                "VALUES (?,?)";
+        
+        stmt = con.prepareStatement(query);
+        stmt.setInt(1, this.id);
+        stmt.setInt(2,category.getCategoryId());
+            
+        db.executeQuery(stmt);
 	}
 	
 	public int getShelfId() {
@@ -181,7 +229,6 @@ public class Shelf {
 			shelfSet.next();
 			shelfSet.getString("shelfId");
 		}catch(SQLException e){
-		    Database.printStackTrace(e);
 			return false;
 		}
 		return true;
@@ -241,7 +288,6 @@ public class Shelf {
 				batches.add(new Integer(tables.getInt("batchId")));
 			}
 		} catch (SQLException e) {
-		    Database.printStackTrace(e);
 			return null;
 		}
 		

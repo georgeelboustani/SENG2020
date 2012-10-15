@@ -99,12 +99,12 @@ public class Store {
 		}
 	}
 	
-	public void addSale(Date date, Trolley products) throws SQLException {
-		Sale newSale = new Sale(PosSystem.generateNextId(TableName.SALE), date, products);
-		newSale.persist();
-		
-		persistSaleMapping(newSale);
-	}
+//	public void addSale(Date date, Trolley products) throws SQLException {
+//		Sale newSale = new Sale(PosSystem.generateNextId(TableName.SALE), date, products);
+//		newSale.persist();
+//		
+//		persistSaleMapping(newSale);
+//	}
 	
 	public void addWarehouse() throws SQLException {
 		Storage w = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.WAREHOUSE);
@@ -125,18 +125,17 @@ public class Store {
 		PosSystem.getDatabase().executeQuery(stmt);
 	}
 	
-	// TODO - no such thing as storesale table. Where not keeping mappings between stores and sales
-	private void persistSaleMapping(Sale s) throws SQLException {
-		PreparedStatement stmt = null;
-		Connection con = PosSystem.getConnection();
-		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storesale (`storeId`,`saleId`) " +
-				"VALUES (?,?)";
-    	stmt = con.prepareStatement(query);
-    	stmt.setInt(1, this.storeId);
-		stmt.setInt(2, s.getSaleId());
-		
-		PosSystem.getDatabase().executeQuery(stmt);
-	}
+//	private void persistSaleMapping(Sale s) throws SQLException {
+//		PreparedStatement stmt = null;
+//		Connection con = PosSystem.getConnection();
+//		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storesale (`storeId`,`saleId`) " +
+//				"VALUES (?,?)";
+//    	stmt = con.prepareStatement(query);
+//    	stmt.setInt(1, this.storeId);
+//		stmt.setInt(2, s.getSaleId());
+//		
+//		PosSystem.getDatabase().executeQuery(stmt);
+//	}
 	
 	private void persistRegisterMapping(Register reg) throws SQLException {
 		PreparedStatement stmt = null;
@@ -160,21 +159,6 @@ public class Store {
 		stmt.setInt(2, emp.getEmployeeId());
 		
 		PosSystem.getDatabase().executeQuery(stmt);
-	}
-	
-	
-	public void addWarehouseSpace(int warehouseId, int shelves, int shelfCapacity) {
-		// TODO - run update query and fix this shit up.
-		// check if warehouse exists with given id, then creat object, update attributes
-		// and update database record
-	}
-	
-	public void removeEmployee(int id) {
-		// TODO - remove from database
-	}
-	
-	public void removeRegister(int id) {
-		// TODO - remove from database
 	}
 	
 	public int getStoreId() {

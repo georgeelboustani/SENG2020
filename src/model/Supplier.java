@@ -42,6 +42,40 @@ public class Supplier {
 		
 		db.executeQuery(stmt);
 	}
+	
+   public static Supplier getSupplierById(int id) {
+        Supplier supplier = null;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.supplier WHERE supplierId = " + id).executeQuery();
+            tables.next();
+            supplier = new Supplier(tables.getInt("supplierId"),tables.getString("name"),tables.getString("address"),tables.getInt("phone"),tables.getString("description"));
+        } catch (SQLException e) {
+            return null;
+        }
+        
+        return supplier;
+    }
+   
+   public static ArrayList<Integer> getAllSuppliersId() {
+       ArrayList<Integer> suppliers = new ArrayList<Integer>();
+       Connection con = PosSystem.getConnection();
+       
+       try {
+           String query = "SELECT * FROM seng2020.supplier";
+           
+           PreparedStatement stmt = con.prepareStatement(query);
+           
+           ResultSet tables = stmt.executeQuery();
+           while (tables.next()) {
+               suppliers.add(tables.getInt("supplierId"));
+           }
+       } catch (SQLException e) {
+           return null;
+       }
+       
+       return suppliers;
+   }
 
 	public int getSupplierId() {
 		return supplierId;

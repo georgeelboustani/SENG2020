@@ -59,6 +59,14 @@ public class Main {
 	 * @return true if a member or admin logs in
 	 */
 	public static boolean requestLogin() {
+	    System.out.println(" _____   ____   _____    _____           _                 \n"+
+                           "|  __ \\ / __ \\ / ____|  / ____|         | |                \n"+
+                           "| |__) | |  | | (___   | (___  _   _ ___| |_ ___ _ __ ___  \n"+
+                           "|  ___/| |  | |\\___ \\   \\___ \\| | | / __| __/ _ \\ '_ ` _ \\ \n"+
+                           "| |    | |__| |____) |  ____) | |_| \\__ \\ ||  __/ | | | | |\n"+
+                           "|_|     \\____/|_____/  |_____/ \\__, |___/\\__\\___|_| |_| |_|\n"+
+                           "                                __/ |                     \n"+
+                           "                               |___/                       ");
 		boolean logIn = CommandLine.getYesOrNo("Would you like to log into the system?");
 		boolean logInSuccessful = false;
 		
@@ -71,7 +79,6 @@ public class Main {
 				
 				if (option == 1) {
 					logInSuccessful = loginEmployee();
-					// TODO - add log entry for register
 				} else if (option == 2) {
 					logInSuccessful = loginMember();
 				}
@@ -135,7 +142,14 @@ public class Main {
 			}
 			currentEmployee = emp;
 			logInSuccessful = true;
+			
+			try {
+			    Register.getRegisterById(registerId).addLog(currentEmployee.getEmployeeId(), "Employee with id " + currentEmployee.getEmployeeId() + " has logged in");
+			} catch (Exception e) {
+			    System.err.println("Error while creating register log");
+			}
 		}
+		
 		return logInSuccessful;
 	}	
 

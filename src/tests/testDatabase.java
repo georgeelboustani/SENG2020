@@ -19,9 +19,7 @@ public class testDatabase {
 		Employee testEmp = new Employee(4,"TEE","T",EmployeeType.ADMIN,"pass");
 		
 		try {
-		testEmp.persist();
-			
-		//TODO: Persist test doesn't actually throw - fix test
+		    testEmp.persist();
 		} catch (SQLException e) {
 		    Database.printStackTrace(e);
 		}
@@ -42,7 +40,6 @@ public class testDatabase {
 		
 		try {
 			testLog.persist();
-			//TODO: Persist test doesn't actually throw - fix test
 		} catch (SQLException e) {
 		    Database.printStackTrace(e);
 		}

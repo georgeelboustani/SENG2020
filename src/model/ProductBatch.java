@@ -141,6 +141,112 @@ public class ProductBatch {
 		}
 	}
 	
+	public ProductCategory getProductCategory() {
+	    return ProductCategory.getProductCategoryByName(ProductType.getProductTypeByName(this.type).getCategoryName());
+	}
+	
+	public static ArrayList<String> getBriefProductReport() {
+	    ArrayList<String> info = new ArrayList<String>();
+        Connection con = PosSystem.getConnection();
+        try {
+            ResultSet tables = con.prepareStatement("SELECT seng2020.productbatch.productType,SUM(seng2020.productbatch.amount) " +
+            		                                "FROM seng2020.productbatch,seng2020.shelfbatch " +
+            		                                "WHERE seng2020.productbatch.batchId = seng2020.shelfbatch.batchId " +
+            		                                "GROUP BY seng2020.productbatch.productType").executeQuery();
+            while (tables.next()) {
+                info.add(ProductType.getProductTypeById(tables.getInt(1)).getType() + "   " + tables.getInt(2));
+            }
+            
+            if (info.size() <= 0) {
+                return null;
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+
+        return info;
+	}
+	
+    public static ArrayList<String> getFullProductReport() {
+        
+        ArrayList<String> info = new ArrayList<String>();
+        info.add("|---------------------------------------------------------------------------------------|");
+        info.add("|                                Full Product Report                                    |");
+        ArrayList<Integer> storages = new ArrayList<Integer>();
+        storages.addAll(Storage.getStorageFromStore(StorageType.FLOOR));
+        storages.addAll(Storage.getStorageFromStore(StorageType.BACKROOM));
+        storages.addAll(Storage.getStorageFromStore(StorageType.WAREHOUSE));
+        
+        for(int storageId : storages){
+            info.add("|---------|-----------------------------------------------------------------------------|");
+            info.add("| Storage | " + Storage.getStorageById(storageId).getStorageType().toString() +"       \t\t\t\t\t\t\t\t|");
+            for(int shelfId : Shelf.getShelvesFromStorage(storageId)){
+                boolean firstProd=true;
+                boolean empty=true;
+                info.add("|---------|-----------------------------------------------------------------------------|");
+                info.add("|         | Shelf [" + shelfId + "]\t("+ Shelf.getShelfById(shelfId).getCurrentAmount() + "/" +
+                                                 Shelf.getShelfById(shelfId).getMaxProducts() + ")\t " +
+                                                 "\t\t\t\t\t\t|");
+
+                for(int productId : Shelf.getProductsFromShelf(shelfId)){
+                    if(firstProd){
+                        info.add("|         |-----------------------------------------------------------------------------|");
+                        empty=false;
+                        firstProd=false;
+                    }else{
+                        info.add("|         |------|--------------|---------------|---------------|-----------------------|");
+
+                    }
+
+                    info.add("|         | " + productId + "\t | " + ProductBatch.getBatchById(productId).getProductType() + "   \t| " +
+                                                               ProductBatch.getBatchById(productId).getAmount() + " units\t| $" +
+                                                               ProductBatch.getBatchById(productId).getPrice() + " each\t| Exp: " + 
+                                                               ProductBatch.getBatchById(productId).getExpiry() + "\t|" );
+                }
+                
+                if(empty){
+                    info.add("|         |-----------------------------------------------------------------------------|");
+                    info.add("|         | Empty \t\t\t\t\t\t\t\t\t|");
+                }
+            }
+        
+        }
+
+        ArrayList<Integer> storageDepots = new ArrayList<Integer>();
+        storageDepots.addAll(Storage.getStorageFromStore(StorageType.ORDERSDEPOT));
+        storageDepots.addAll(Storage.getStorageFromStore(StorageType.RETURNSDEPOT));
+        for(int storageId : storageDepots){
+            info.add("|---------|-----------------------------------------------------------------------------|");
+            for(int shelfId : Shelf.getShelvesFromStorage(storageId)){
+                info.add("| Storage | " + Storage.getStorageById(storageId).getStorageType().toString() +": "+
+                                          Shelf.getShelfById(shelfId).getCurrentAmount() + " units\t\t\t\t\t\t\t|");
+                boolean firstProd=true;
+                boolean empty=true;
+                for(int productId : Shelf.getProductsFromShelf(shelfId)){
+                    if(firstProd){
+                        empty=false;
+                        info.add("|         |-----------------------------------------------------------------------------|");
+                        firstProd=false;
+                    }else{
+                        info.add("|         |------|--------------|---------------|---------------------------------------|");
+
+                    }
+                    info.add("|         | " + productId + "\t | " + ProductBatch.getBatchById(productId).getProductType() + "   \t| " +
+                                                               ProductBatch.getBatchById(productId).getAmount() + " units\t\t\t\t\t\t|" );
+                }
+                if(empty){
+                    info.add("|         |-----------------------------------------------------------------------------|");
+                    info.add("|         | Empty \t\t\t\t\t\t\t\t\t|");
+                }
+            }
+           
+            
+        }
+        info.add("|---------|-----------------------------------------------------------------------------|");
+        info.add("\n");
+        return info;
+    }
+	
 	public static ProductBatch getBatchById(int id) {
 		ProductBatch batch = null;
 		Connection con = PosSystem.getConnection();
