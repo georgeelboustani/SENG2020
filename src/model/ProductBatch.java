@@ -186,7 +186,7 @@ public class ProductBatch {
                 info.add("|---------|-----------------------------------------------------------------------------|");
                 info.add("|         | Shelf [" + shelfId + "]\t("+ Shelf.getShelfById(shelfId).getCurrentAmount() + "/" +
                                                  Shelf.getShelfById(shelfId).getMaxProducts() + ")\t " +
-                                                 "\t\t\t\t\t\t|");
+                                                 "\t\t\t\t\t\t\t|");
 
                 for(int productId : Shelf.getProductsFromShelf(shelfId)){
                     if(firstProd){

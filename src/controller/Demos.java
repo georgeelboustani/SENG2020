@@ -17,25 +17,20 @@ public class Demos {}
 Pre base req:
 
 0.Managing storage
-+ adding storing locations
-+ adding shelves with categories
- 
++ Add a new shelf with category Confectionary
  
 1. Register a new product and enter n quantity of items to that product.
-+ Add product to system
-+ order product
-+ receive product
++ Add product to system Cheese
++ order product cheese 200
++ receive product 
 
-2. Move x quantity of a particular product between the three store locations (warehouse, back
-store and shelves).
-    =>Transfer
+2. try put 200 into warehouse doesnt work put 100 in warehouse. transfer to backroom. transfer to floor onto shelf Sweets. doesnt work.
+3. Add shelf category Dairy to shelf with category Sweets. put on try move 100 again will work
 
-+ show shelf categorisation
 
 3. Show how a customer can “checkout” their trolley of products
- + show member loyalty
  + removing products
-
+ + show member loyalty
 
 -------------------------------------
 4. Returning products

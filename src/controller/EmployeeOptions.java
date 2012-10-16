@@ -51,6 +51,7 @@ public class EmployeeOptions {
 		questions.add("Reporting");
 		questions.add("Log out");
 		
+		System.out.println("MAIN MENU");
 		int option = CommandLine.getUserOption(questions);
 		
 		try {
@@ -120,7 +121,7 @@ public class EmployeeOptions {
 				Main.requestLogout();
 				throw new LogoutException();
 		}
-		
+		System.out.println(question.toUpperCase());
 		int newOption = CommandLine.getUserOption(newQuestions);
 		try {
 		    CommandLine.clearConsole();
@@ -241,12 +242,21 @@ public class EmployeeOptions {
 				case "Order products":
 					orderId = PosSystem.generateNextId(TableName.ORDER);
 					
+					boolean done = false;
 					Date orderArrival = null;
-					while (orderArrival == null) {
+					while (orderArrival == null || orderArrival.before(Database.getCurrentDate())) {
 					    try {
 					        orderArrival = Database.getSqlDate(CommandLine.getAnswerAsString("Arrival Date (yyyy-mm-dd):"));
+					        
+					        if (orderArrival != null && (orderArrival.after(Database.getCurrentDate()) || orderArrival.equals(Database.getCurrentDate()))) {
+					            done = true;
+					        }
 					    } catch (IllegalArgumentException e) {
-					        System.out.println("Please input a valid date in the following format yyyy-mm-dd");
+					    
+					    } finally {
+					        if (!done) {
+					            System.out.println("Please input a valid date in the following format yyyy-mm-dd, which is not before today");
+					        }
 					    }
 					}
 
@@ -467,8 +477,8 @@ public class EmployeeOptions {
 				    if (batch.getExpiry().before(Database.getCurrentDate())) {
     				    int amount = CommandLine.getAnswerAsInt("How much of the product " + batch.getProductType().toLowerCase() + 
     				                                        " would you like to return:");
-    				    while (amount > batch.getAmount() || amount < 0) {
-    				        amount = CommandLine.getAnswerAsInt("Please enter a number between 0 and " + batch.getAmount() + ":");
+    				    while (amount > batch.getAmount() || amount <= 0) {
+    				        amount = CommandLine.getAnswerAsInt("Please enter a number between 1 and " + batch.getAmount() + ":");
     				    }
     				    
     				    batch.setAmount(batch.getAmount() - amount);

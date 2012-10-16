@@ -16,10 +16,10 @@ import java.text.SimpleDateFormat;
 import model.PosSystem;
 
 import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.log.Log;
 
 public class Database {
-	
-    private static boolean debugging = true;
+    private static boolean debugging = false;
 	private static String localServer = "jdbc:mysql://localhost:3306/";
 	private static String localDB = "seng2020";
 	
@@ -82,6 +82,7 @@ public class Database {
     	
 		try {
 	    	query.executeUpdate();
+	    	System.out.println(query);
 	    	con.commit();
 	    } catch (SQLException e) {
 	    	con.rollback();
