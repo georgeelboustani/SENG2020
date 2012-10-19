@@ -29,6 +29,11 @@ public class Sale {
 		this.products = products;
 	}
 	
+	public Sale(int id, Date date) {
+	    this.saleId =id;
+	    this.date = date;
+	}
+	
 	public void persist() throws SQLException {
 		PreparedStatement stmt = null;
 		Database db = PosSystem.getDatabase();
@@ -93,6 +98,20 @@ public class Sale {
         
         return isInSale;
     }
+    
+    public static Sale getSaleById(int saleId) {
+        Sale sale = null;
+        
+        try {
+            ResultSet tables = PosSystem.getConnection().prepareStatement("SELECT * FROM seng2020.sale WHERE saleId = " + saleId).executeQuery();
+            tables.next();
+            sale = new Sale(saleId, tables.getDate("date"));
+        } catch (SQLException e) {
+            return null;
+        }
+        
+        return sale;
+    }
 
 	public int getSaleId() {
 		return saleId;
@@ -104,5 +123,24 @@ public class Sale {
 
 	public Trolley getProducts() {
 		return products;
-	}	
+	}
+
+    public static ArrayList<String> getBatchesFromSale(int saleId2) {
+        ArrayList<String> batches = new ArrayList<String>();
+        
+        try {
+            String query = "SELECT batchId FROM seng2020.salebatches WHERE saleId = ?";
+            PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
+            stmt.setInt(1, saleId2);
+            
+            ResultSet tables = stmt.executeQuery();
+            while(tables.next()) {
+                batches.add(String.valueOf(tables.getInt("batchId")));
+            }
+        } catch (SQLException e) {
+            return batches;
+        }
+        
+        return batches;
+    }	
 }

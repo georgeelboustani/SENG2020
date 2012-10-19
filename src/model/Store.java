@@ -113,7 +113,7 @@ public class Store {
 		persistStorageMapping(w);
 	} 
 	
-	private void persistStorageMapping(Storage s) throws SQLException {
+	public void persistStorageMapping(Storage s) throws SQLException {
 		PreparedStatement stmt = null;
 		Connection con = PosSystem.getConnection();
 		String query = "INSERT into " + PosSystem.getDatabase().getDbName() + ".storestorage (`storeId`,`storageId`) " +

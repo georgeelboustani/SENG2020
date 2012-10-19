@@ -82,7 +82,7 @@ public class Database {
     	
 		try {
 	    	query.executeUpdate();
-	    	System.out.println(query);
+	    	//System.out.println(query);
 	    	con.commit();
 	    } catch (SQLException e) {
 	    	con.rollback();

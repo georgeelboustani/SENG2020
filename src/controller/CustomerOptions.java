@@ -91,7 +91,7 @@ public class CustomerOptions {
 					try {
 						
 						Member mem2 = s.addMember(fname, lname, password, Database.getCurrentDate());
-						System.out.println("Your member account has been successfully created. Your member id is " + mem2.getId());
+						CommandLine.getAnswerAsString("Your member account has been successfully created. Your member id is " + mem2.getId() + ". Type anything to continue.");
 					} catch (SQLException e) {
 						System.out.println("Error while creating member, please try again or type 'cancel'");
 						customerQuestionHandlerLevelOne(questions,option);

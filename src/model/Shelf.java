@@ -52,7 +52,7 @@ public class Shelf {
             ResultSet shelfSet = stmt.executeQuery();
             shelfSet.next();
             shelfSet.getString("shelfId");
-        }catch(SQLException e){
+        } catch(SQLException e) {
             return false;
         }
         return true;
@@ -62,7 +62,7 @@ public class Shelf {
        String categories = "";
         
         try {
-            String query = "SELECT batchId FROM seng2020.shelfbatch WHERE shelfId = ?";
+            String query = "SELECT categoryId FROM seng2020.shelfcategory WHERE shelfId = ?";
             PreparedStatement stmt = PosSystem.getConnection().prepareStatement(query);
             stmt.setInt(1, shelfId);
             

@@ -204,10 +204,13 @@ public class EmployeeOptions {
 				case "Promote employee":
 					empId = CommandLine.getAnswerAsInt("Employee Id: ");
 					s.changeEmployeeType(empId,true);
+					
+					CommandLine.getAnswerAsString(Employee.getEmployeeById(empId).getFirstName() + " has been successfully promoted to " + Employee.getEmployeeById(empId).getEmployeeType() + ". Type anything to continue");
 					break;
 				case "Demote employee":
 					empId = CommandLine.getAnswerAsInt("Employee Id: ");
 					s.changeEmployeeType(empId,false);
+					CommandLine.getAnswerAsString(Employee.getEmployeeById(empId).getFirstName() + "has been successfully demoted to " + Employee.getEmployeeById(empId).getEmployeeType() + ". Type anything to continue");
 					break;
 				case "Change product price":
 					boolean changeAll = CommandLine.getYesOrNo("Would you like to change the price of a product type for every batch?");
@@ -279,6 +282,7 @@ public class EmployeeOptions {
 					    System.err.println("Error while creating order");
 					}
 					
+					CommandLine.getAnswerAsString("Ordered " + quantity + " cheese successfully. Order id is " + orderId + ". Type anything to continue");
 					break;
 				case "Receive Order":
 				    orderId = CommandLine.getAnswerAsInt("Order Id:");
@@ -431,8 +435,7 @@ public class EmployeeOptions {
 					
 					ProductBatch transferBatch = ProductBatch.getBatchById(batchId);
 					if (Shelf.hasCategory(toShelfId, transferBatch.getProductCategory().getCategoryId()) ||
-					    Shelf.associatedCategories(toShelfId).length() < 1) {
-					    
+					    Shelf.associatedCategories(toShelfId).length() < 2) {
 					    Shelf toShelf = Shelf.getShelfById(toShelfId);
     					if (Shelf.isOnShelf(batchId, fromShelfId)) {
     						int maxTransfer = min(ProductBatch.getBatchById(batchId).getAmount(), toShelf.getMaxProducts() - toShelf.getCurrentAmount());
@@ -448,14 +451,17 @@ public class EmployeeOptions {
     						}
     						
     						Storage.transfer(fromShelfId, toShelfId, batchId, Integer.parseInt(amount));
+    						
+    						CommandLine.getAnswerAsString("Successfully moved " + amount + " products to shelf with id " + toShelfId + ". Type anything to continue.");
     					} else {
     						System.out.println("The product batch of id " + batchId + " is not on the shelf of id "+ fromShelfId);
     						throw new CancelException();
     					}
 					} else {
-					    System.out.println("You are trying to transfer a product type of category " + transferBatch.getProductCategory().getCategoryId() +
-					                       " to a shelf which can accept categories: " + Shelf.associatedCategories(toShelfId).length());
+					    CommandLine.getAnswerAsString("You are trying to transfer a product type of category " + transferBatch.getProductCategory().getCategoryId() +
+					                       " to a shelf that can hold categories " + Shelf.associatedCategories(toShelfId) + ", type anything to return to menu.");
 					}
+					
 					break;
 				case "Sell product(Cash)":
 					handleSale(false);
@@ -464,19 +470,23 @@ public class EmployeeOptions {
 					handleSale(true);
 					break;
 				case "Return product":
-				    int saleId = CommandLine.getAnswerAsInt("Sale id");
-				    batchId = CommandLine.getAnswerAsInt("Batch Id");
-				    
-				    while (!Sale.isBatchInSale(saleId, batchId)) {
-				        System.out.println("The sale batch combination you entered does not exist, please try again.");
-				        saleId = CommandLine.getAnswerAsInt("Sale id");
-	                    batchId = CommandLine.getAnswerAsInt("Batch Id");
+				    int saleId = CommandLine.getAnswerAsInt("Sale id: ");
+				    while (Sale.getSaleById(saleId) == null) {
+				        saleId = CommandLine.getAnswerAsInt("Please enter a valid sale id: ");
 				    }
+				    System.out.println("The following are batches associated with the enter sale");
 				    
+				    ArrayList<String> batches = Sale.getBatchesFromSale(saleId);
+				    CommandLine.printList(batches);
+				    batchId = CommandLine.getAnswerAsInt("Batch Id:");
+				    while (!batches.contains(String.valueOf(batchId))) {
+				        batchId = CommandLine.getAnswerAsInt("Please enter a valid batch Id from the list above:");
+				    }
+				   
 				    batch = ProductBatch.getBatchById(batchId);
-				    if (batch.getExpiry().before(Database.getCurrentDate())) {
+				    if (batch.getExpiry().after(Database.getCurrentDate()) || batch.getExpiry().equals(Database.getCurrentDate())) {
     				    int amount = CommandLine.getAnswerAsInt("How much of the product " + batch.getProductType().toLowerCase() + 
-    				                                        " would you like to return:");
+    				                                        " would you like to return [1," + batch.getAmount() + "]:");
     				    while (amount > batch.getAmount() || amount <= 0) {
     				        amount = CommandLine.getAnswerAsInt("Please enter a number between 1 and " + batch.getAmount() + ":");
     				    }
@@ -494,12 +504,13 @@ public class EmployeeOptions {
     				        try {
         				        // Add the batch to the returns depot
         				        Storage.addBatchToStorageOrOrderDepot(returnDepot.getId(), returnedBatch);
+        				        CommandLine.getAnswerAsString("Successfully return products and added to returns depot. Type anything to continue.");
     				        } catch (Exception e) {
     				            batch.setAmount(batch.getAmount() + amount);
     				        }
     				    }
 				    } else {
-				        System.out.println("Unable to return select product batch as it is expired");
+				        CommandLine.getAnswerAsString("Unable to return select product batch as it is expired. Type anything to continue.");
 				    }
 				    
 					break;
@@ -602,6 +613,7 @@ public class EmployeeOptions {
                         
                     Storage newStorage = new Storage(PosSystem.generateNextId(TableName.STORAGE),StorageType.valueOf(storType));
                     newStorage.persist();
+                    Store.getStoreById(PosSystem.getStoreId()).persistStorageMapping(newStorage);
                     break;
                 case "Add Shelf":
                     storages = Storage.getStorageFromStore(StorageType.FLOOR);
@@ -648,6 +660,8 @@ public class EmployeeOptions {
                     for (Integer id: employees) {
                         System.out.println(id + "  " + Employee.getEmployeeById(id).getFirstName() + Employee.getEmployeeById(id).getLastName());
                     }
+                    
+                    CommandLine.getAnswerAsString("Type anything to continue");
 					break;
 				case "Report Products":
 					
